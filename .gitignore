@@ -76,3 +76,4 @@ typings/
 .slt
 
 uploads/*
+config/*
