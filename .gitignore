@@ -74,3 +74,5 @@ typings/
 
 # salt
 .slt
+
+uploads/*
