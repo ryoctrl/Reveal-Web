@@ -16,36 +16,28 @@ router.post('/', async (req, res, next) => {
         return;
     }
 
-
-    ///checking user
-    const mailQuery = {
+    let query = {
         where: {
             email: email
         }
     };
 
-    const nameQuery = {
+    let record = await models.users.findOne(query);
+
+    if(record) {
+        res.redirect('/signup');
+        return;
+    }
+
+    query = {
         where: {
             name: name
         }
     };
 
-
-    let findEmail = false;
-    let findName = false;
-
-    let record = await models.users.findOne(mailQuery);
+    record = await models.users.findOne(query);
 
     if(record) {
-        console.log('メールアドレス重複');
-        res.redirect('/signup');
-        return;
-    }
-
-    record = await models.users.findOne(nameQuery);
-
-    if(record) {
-        console.log('ユーザー名重複');
         res.redirect('/signup');
         return;
     }
