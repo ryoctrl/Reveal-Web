@@ -7,7 +7,7 @@ router.get('/', (req, res, next) => {
     res.render('signup');
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', async (req, res, next) => {
     const name = req.body.username;
     let password = req.body.password;
     const email = req.body.email;
@@ -19,46 +19,53 @@ router.post('/', (req, res, next) => {
 
     ///checking user
     const mailQuery = {
-        email: email
+        where: {
+            email: email
+        }
     };
 
     const nameQuery = {
-        name: name
+        where: {
+            name: name
+        }
     };
 
+
     let findEmail = false;
-    let findUser = false;
-    models.users.findOne(mailQuery).then(record => {
-        if(record) findEmail = true;
-    }).then(() => {
-        models.users.findOne(mailQuery).then(record => {
-            if(record) findUser = true;
+    let findName = false;
 
-            if(findEmail || findUser) {
-                res.redirect('/signup');
-                return;
-            }
+    let record = await models.users.findOne(mailQuery);
 
+    if(record) {
+        console.log('メールアドレス重複');
+        res.redirect('/signup');
+        return;
+    }
 
-            bcrypt.hash(password, 10, function(err, hash) {
-                const userObj = {
-                    name: name,
-                    email: email,
-                    password_hash: hash
-                };
+    record = await models.users.findOne(nameQuery);
 
-                models.users.create(userObj)
-                    .then((record) => {
-                        res.redirect('login');
-                        return;
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        res.status(500).render('signup');
-                        return;
-                    });
-            });
+    if(record) {
+        console.log('ユーザー名重複');
+        res.redirect('/signup');
+        return;
+    }
+
+    bcrypt.hash(password, 10, async (err, hash) => {
+        const userObj = {
+            name: name,
+            email: email,
+            password_hash: hash
+        };
+
+        let record = await models.users.create(userObj).catch((err) => {
+            console.log(err);
+            res.status(500).render('signup');
+            return;
         });
+
+        if(!record) return;
+
+        res.redirect('login');
     });
 });
 
