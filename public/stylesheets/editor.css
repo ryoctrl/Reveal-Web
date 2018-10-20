@@ -1,0 +1,33 @@
+*, *:before, *:after {
+  box-sizing: border-box; 
+}
+body {
+  color: #444;
+  background-color: hsl(0, 2%, 56%);
+}
+
+#input, #output {
+  display: block;
+  position: absolute;
+  top: 0px;
+  width: 50vw;
+  height: 100vh;
+  padding: 20px;
+  outline: none;
+  border: none;
+}
+
+#input {
+  font-size: 20px;
+  left: 0px;
+  border-right: 5px solid rgb(65, 52, 52);
+}
+#output {
+  right: 0px;
+}
+
+ul {
+  padding: 1rem;
+  margin: 1rem;
+}
+  
