@@ -10,10 +10,13 @@
     
     <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.10/vue.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+    <!--<script src="/js/editor_events.js"></script>-->
 
     <link rel="stylesheet" type="text/css" href="/stylesheets/editor.css">
+
     <script>
-        window.onload = () => {
+        window.onload = function() {
             new Vue({
                 el: '#editor',
                 data: {
@@ -22,14 +25,51 @@
                 filters: {
                     marked: marked,
                 },
+                watch: {
+                    input: function(newInput, oldInput) {
+                        console.log('change');
+                        if(newInput === oldInput) return;
+                    }
+                },
+                methods: {
+                    postInput: function() {
+                        let obj = {
+                            input: this.input
+                        };
+                        this.$http.post('/editor', obj, function(data, stat, request) {});
+                    },
+                    save: function() {
+                        console.log('save');
+                        this.postInput();
+                    },
+                    saveAndView: function() {
+                        console.log('save and view');
+                        this.postInput();
+                        location.href='/users/<%= name %>/slide';
+                    },
+                    back: function() {
+                        console.log('save and back');
+                        this.postInput();
+                        history.back();
+                    },
+                }
             });
         };
+
     </script>
   </head>
   <body>
-    <div id='editor'>
-        <textarea id='input' v-model='input' debounce='100'></textarea><br>
-        <div id='output' v-html='input | marked'></div>
-    </div>
+
+      <div id="editor">
+      <header>
+            <button id="save_button" v-on:click="save">Save</button>
+            <button id="confirm_button" v-on:click="saveAndView">SaveView</button>
+            <button id="back_button" v-on:click="back">保存して戻る</button>
+            <button onclick="history.back()">保存せず戻る</button>
+      </header>
+
+            <textarea id='input' v-model='input' debounce='100'></textarea>
+            <div id='output' v-html='input | marked' ></div>
+        </div>
   </body>
 </html>

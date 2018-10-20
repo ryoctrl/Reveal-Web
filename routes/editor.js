@@ -18,6 +18,10 @@ router.get('/', async function(req, res, next) {
     };
 
     let slide = await models.slides.findOne(query);
+    if(!slide) {
+        res.redirect(`/users/${user.name}`);
+        return;
+    }
     let markdownPath = slide.getDataValue('markdown_path');
     //toString()しなくてもlog出力では確認できたけどreplaceが使えなかった
     let markdownString = fs.readFileSync(markdownPath).toString();
@@ -30,9 +34,34 @@ router.get('/', async function(req, res, next) {
     markdownString = markdownString.replace(new RegExp('</script>', 'g'), '<//script>');
 
     let obj = {
-        data: markdownString
-    }
+        data: markdownString,
+        name: user.name
+    };
     res.render('editor', obj);
+});
+
+router.post('/', async function(req, res, next) {
+    let user = req.session.user;
+    if(!user) {
+        console.log('not loggined');
+        res.status(403);
+        res.send('user not loggined');
+        return;
+    }
+
+    let input = req.body.input;
+    let username = user.id;
+
+    let query = {
+        where: {
+            user_id: user.id
+        }
+    };
+
+    let slide = await models.slides.findOne(query);
+    let markdownPath = slide.getDataValue('markdown_path');
+    fs.writeFileSync(markdownPath, input);
+    res.status(200);
 });
 
 module.exports = router;
