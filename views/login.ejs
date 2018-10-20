@@ -6,6 +6,11 @@
   </head>
   <body>
       <h1> Welcome to RevealWeb! </h1>
+      <% if(msg && 'login' in msg) { %>
+        <% for (let m of msg.login) { %>
+            <p> <%= m %>
+        <% } %>
+      <% } %>
       <form action="/login" method="post">
           <div>
               <label>UserID:</label>

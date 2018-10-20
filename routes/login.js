@@ -9,10 +9,15 @@ router.get('/', (req, res, next) => {
         res.redirect(`/users/${user.name}`);
         return;
     }
-    res.render('login');
+
+    const obj = {
+        msg: req.session.msg
+    }
+    res.render('login', obj);
+    delete req.session.msg.login;
 });
 
-router.post('/', (req, res, next) => {
+router.post('/', async (req, res, next) => {
     const username = req.body.username;
     const password = req.body.password;
 
@@ -22,34 +27,27 @@ router.post('/', (req, res, next) => {
         }
     };
 
-    models.users.findOne(query).then((record) => {
-        if(!record) {
-            console.log('ユーザーが存在しない');
-            res.status(500).render('login');
+    let record = await models.users.findOne(query).catch((err) => {
+        console.log(err);
+        req.session.msg.login = ["なんらかのエラーが発生しました。"];
+        res.redirect('/login');
+        return;
+    });
+
+    if(!record) {
+        req.session.msg.login = ["ユーザーが存在しません"];
+        res.redirect('/login');
+        return;
+    }
+
+    bcrypt.compare(password, record.getDataValue('password_hash'), (err, result) => {
+        if(err || !result) {
+            req.session.msg.login = ["パスワードが一致しません"];
             return;
         }
-        bcrypt.compare(password, record.getDataValue('password_hash'), (err, result) => {
-            if(err) {
-                console.log('なんらかのエラー');
-                res.status(500).render('login');
-                return;
-            }
 
-            if(!result) {
-                console.log('パスワードが違う');
-                res.status(500).render('login');
-                return;
-            }
-
-            console.log('ログイン成功');
-            req.session.user = record;
-            res.redirect(`/users/${record.getDataValue('name')}`);
-            return;
-        });
-    }).catch((err) => {
-        console.log('DB select error');
-        console.log(err);
-        res.status(500).render('login');
+        req.session.user = record;
+        res.redirect(`/users/${record.getDataValue('name')}`);
         return;
     });
 });

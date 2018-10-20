@@ -7,6 +7,11 @@
   <body>
       <h1> Welcome to RevealWeb! </h1>
       Please input below to signup!
+      <% if(msg && 'signup' in msg) { %>
+        <% for(m of msg.signup) { %>
+        <p><%= m %></p>
+        <% } %>
+      <% } %>
       <form action="/signup" method="post">
           <div>
               <label>UserID:</label>
