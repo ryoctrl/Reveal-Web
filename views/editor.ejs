@@ -1,0 +1,35 @@
+<!doctype html>
+ 
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    
+    <title>MarkdownEditor</title> 
+    
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.10/vue.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.js'></script>
+
+    <link rel="stylesheet" type="text/css" href="/stylesheets/editor.css">
+    <script>
+        window.onload = () => {
+            new Vue({
+                el: '#editor',
+                data: {
+                    input: `<%- data %>`
+                },
+                filters: {
+                    marked: marked,
+                },
+            });
+        };
+    </script>
+  </head>
+  <body>
+    <div id='editor'>
+        <textarea id='input' v-model='input' debounce='100'></textarea><br>
+        <div id='output' v-html='input | marked'></div>
+    </div>
+  </body>
+</html>
