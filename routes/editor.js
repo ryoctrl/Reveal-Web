@@ -25,12 +25,12 @@ router.get('/', async function(req, res, next) {
     //clientのvueオブジェクトに渡す際にテンプレートエンジンでレンダリングしなければならないので色々replace。
     //レンダリングしなくても直接vueに渡せる手法があるのであればそっちのがいい。
     //express-vueとかそれっぽい？
-    markdownString = markdownString.replace(new RegExp('`', 'g'), '\\`');
+    markdownString = markdownString.replace(new RegExp('"', 'g'), '\\"');
     //これもレンダリング時に</script>を読むとそこでclientのscriptが終わってしまうので苦肉の策。
     markdownString = markdownString.replace(new RegExp('</script>', 'g'), '<//script>');
 
     let obj = {
-        data: str
+        data: markdownString
     }
     res.render('editor', obj);
 });
