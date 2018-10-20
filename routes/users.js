@@ -24,7 +24,8 @@ router.get('/:name', async (req, res, next) => {
 
     let obj = {
         username: user.name,
-        slide: false
+        slide: false,
+        msg: req.session.msg
     };
 
     const query = {
@@ -40,6 +41,7 @@ router.get('/:name', async (req, res, next) => {
         reveal.runIfNeeded(slide.getDataValue('markdown_path'), process.getDataValue('port'));
     }
     res.status(200).render('users', obj);
+    req.session.msg.users = [];
     return;
 });
 

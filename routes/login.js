@@ -14,10 +14,11 @@ router.get('/', (req, res, next) => {
         msg: req.session.msg
     }
     res.render('login', obj);
-    delete req.session.msg.login;
+    req.session.msg.login = [];
 });
 
 router.post('/', async (req, res, next) => {
+    if(!req.session.msg) req.session.msg = {};
     const username = req.body.username;
     const password = req.body.password;
 
@@ -35,14 +36,14 @@ router.post('/', async (req, res, next) => {
     });
 
     if(!record) {
-        req.session.msg.login = ["ユーザーが存在しません"];
+        req.session.msg.login = ["ユーザー名またはパスワードが違います."];
         res.redirect('/login');
         return;
     }
 
     bcrypt.compare(password, record.getDataValue('password_hash'), (err, result) => {
         if(err || !result) {
-            req.session.msg.login = ["パスワードが一致しません"];
+            req.session.msg.login = ["ユーザー名またはパスワードが違います."];
             return;
         }
 

@@ -19,19 +19,20 @@ const reveal = require('../controllers/revealgo.js').reveal;
   */
 
 router.post('/', upload.single('markdown'), (req, res, next) => {
+    if(!req.session.msg) req.session.msg = {};
     let user = req.session.user;
+    let file = req.file;
     if(!user) {
         fs.unlink(file.path, (err) => {});
         res.redirect('/');
         return;
     }
 
-    if(req.file.mimetype != 'text/markdown') {
-        const err = {
-            message: 'Markdownファイルのみアップロードすることができます'
-        };
-        req.session.err = err;
+    if(!req.file.originalname.endsWith('.md')) {
+        fs.unlink(file.path, (err) => {});
+        req.session.msg.users = ['Markdownファイルのみアップロードすることができます'];
         res.redirect(`users/${user.name}`);
+        return;
     }
 
     //正規のユーザーからpostされたらslidesレコードを作成しプロセスを起動しprocessレコードを作成する
@@ -50,6 +51,7 @@ router.post('/', upload.single('markdown'), (req, res, next) => {
             models.slides.create(slidesObj)
                 .then((record) => {
                     reveal.runAsNewProcess(path, () => {
+                        console.log('return user page');
                         res.redirect(`users/${user.name}`);
                         return;
                     });
@@ -66,6 +68,7 @@ router.post('/', upload.single('markdown'), (req, res, next) => {
             if(err) console.log(err);
             return;
         });
+        res.redirect(`users/${user.name}`);
     }).catch((err) => {
         console.log('find error');
     });

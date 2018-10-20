@@ -3,24 +3,33 @@
   <head>
     <title>RevealWeb</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/js/uploader.js"></script>
   </head>
   <body>
-      <h1> Hello! <%= username %> </h1>
-      
+      <h2> Hello! <%= username %> </h2>
+
+      <% if(msg && 'users' in msg) { %>
+        <% for( m of msg.users) { %>
+            <p> <%= m %> </p>
+        <% } %>
+    <% } %>
+
+      <div class="buttons menu">
       <% if (slide) { %>
-      <a href="/users/<%=username%>/slide"> スライド </a>
-      <a href="/editor">editor</a>
+        <button class="button" onclick="location.href='/users/<%=username%>/slide'"> スライドを表示 </button>
+        <button class="button" onclick="location.href='/editor'">Markdownを編集</button>
+        <% } else { %>
+            <p> Markdownファイルがアップロードされていません。</p>
+            <p> Markdownファイルをアップロードするとスライドの閲覧・編集ができるようになります</p>
+        <% } %>
+        <button id="filebtn" class="button" onClick="selectFileClicked();">ファイルを選択</button>
 
-      <% } %>
-
-      <form method="POST" enctype="multipart/form-data" action="/upload">
-          <div>
-              <label>Markdown: </label>
-              <input type="file" name="markdown">
-          </div>
-          <div>
-              <input type="submit" value="upload">
-          </div>
-      </form>
+          <form method="POST" enctype="multipart/form-data" action="/upload">
+              <input id="mdfile" type="file" name="markdown" style="display:none;" accept=".md">
+              <div>
+                  <input id="uploadbtn" class="button" type="submit" value="upload" style="display: none;">
+              </div>
+          </form>
+      </div>
   </body>
 </html>
