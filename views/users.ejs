@@ -12,12 +12,20 @@
         <% for( m of msg.users) { %>
             <p> <%= m %> </p>
         <% } %>
-    <% } %>
+        <% } %>
 
       <div class="buttons menu">
       <% if (slide) { %>
         <button class="button" onclick="location.href='/users/<%=username%>/slide'"> スライドを表示 </button>
         <button class="button" onclick="location.href='/editor'">Markdownを編集</button>
+        <button class="button" onclick="location.href='/users/<%=username%>/changeShare'">
+            <% if(!shared) { %> 
+            スライドを共有 
+            <% } else { %> 
+            スライドを共有しない
+            <% } %>
+        </button>
+
         <% } else { %>
             <p> Markdownファイルがアップロードされていません。</p>
             <p> Markdownファイルをアップロードするとスライドの閲覧・編集ができるようになります</p>
