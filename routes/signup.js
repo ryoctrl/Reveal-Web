@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const models = require('../models');
+const mailer = require('../utils/mailer');
 
 router.get('/', (req, res, next) => {
     let user = req.session.user;
@@ -77,7 +78,12 @@ router.post('/', async (req, res, next) => {
         }
 
 
-        res.redirect('login');
+        mailer.sendConfirm(email, function (err, result) {
+            req.session.msg.login = [];
+            if(err) req.session.msg.login.push('確認メールの送信時に何らかのエラーが発生しました。');
+            else req.session.msg.login.push('確認メールを送信しました。');
+            res.redirect('login');
+        });
     });
 });
 

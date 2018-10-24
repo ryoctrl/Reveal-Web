@@ -5,7 +5,11 @@
 		"script": "npm",
 		"args": "start",
 		"env": {
-			"PORT": 9500
+			"PORT": 9500,
+            "MAIL_HOST": '',
+            "MAIL_PORT": 0,
+            "MAIL_DOMAIN": '',
+            "MAIL_FROM": ''
 		}
 	}
 	]
