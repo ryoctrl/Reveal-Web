@@ -46,6 +46,9 @@ module.exports.reveal = {
         }while(!stdout && !stderr);
     },
     runIfNeeded: async function(path, port) {
+        //if lsof -i:xxxx > /dev/null; then echo in use; else echo open; fi
+        //TODO: Catchを使わなくてもよいように変更する。上記参考
+        const {stdout, stderr} = await exe(`if sudo lsof -i:28089 >/dev/null; then echo in use; else echo open; fi`, {shell: true})
         const {stdout, stderr} = await exe(`lsof -i:${port}`, {shell: true}).catch((err) => {
             let cmd = "revealgo";
             cmd += ` -p ${port}`;
