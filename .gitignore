@@ -77,3 +77,4 @@ typings/
 
 uploads/*
 config/*
+pm2conf.json
