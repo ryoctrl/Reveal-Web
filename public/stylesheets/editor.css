@@ -2,8 +2,8 @@
   box-sizing: border-box; 
 }
 body {
-  color: #444;
-  background-color: hsl(0, 2%, 56%);
+/*  color: #444;*/
+  /*background-color: hsl(0, 2%, 56%);*/
   overflow: hidden;
 }
 
@@ -12,7 +12,7 @@ body {
   position: absolute;
   top: 50px;
   width: 50vw;
-  height: 100vh;
+  height: 97vh;
   padding: 20px;
   outline: none;
   border: none;
@@ -21,7 +21,9 @@ body {
 #input {
   font-size: 20px;
   left: 0px;
-  border-right: 5px solid rgb(65, 52, 52);
+  background-color: #666666;
+  color: #ffffff;
+  /*border-right: 5px solid rgb(65, 52, 52);*/
 }
 #output {
   right: 0px;
@@ -35,3 +37,16 @@ ul {
   margin: 1rem;
 }
   
+button {
+    color: #FFFFFF;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    font-size: 14px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    cursor: pointer;
+    width: 10vw;
+    height: 3vh;
+}

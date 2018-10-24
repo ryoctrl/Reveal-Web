@@ -15,7 +15,6 @@ router.get('/', (req, res, next) => {
         msg: req.session.msg
     };
     res.render('signup', obj);
-    delete res.session.msg.signup;
 });
 
 router.post('/', async (req, res, next) => {
