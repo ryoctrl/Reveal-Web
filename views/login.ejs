@@ -3,14 +3,17 @@
   <head>
     <title>Login</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/js/page.js"></script>
   </head>
   <body>
       <h2> Welcome to RevealWeb! </h2>
+      <div class="messages">
       <% if(msg && 'login' in msg) { %>
         <% for (let m of msg.login) { %>
             <p> <%= m %>
         <% } %>
       <% } %>
+      </div>
       <form action="/login" method="post">
           <div>
               <label>UserID:</label>
