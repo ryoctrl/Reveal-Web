@@ -15,33 +15,27 @@ module.exports.reveal = {
         }
         
         let cmd = this.generateExecCommand(slide, {port: max});
-        console.log(cmd);
-        let {err, stdout, stderr} = await exec(cmd)
-           // , async (err, stdout, stderr) => {
-            if(err) {
-                console.error('an error occured where controllers/revealgo.js/runIfNeeded');
-                console.error(cmd);
-                console.error(err);
-                return;
-            }
-
-            console.log('command exec succeeded');
-
-
-            const processObj = {
-                user_id: slide.user_id || slide.getDataValue('user_id'),
-                port: max
-            };
-            await models.processes.create(processObj);
-            console.log('created process record');
-
-            cb();
+        let {err, stdout, stderr} = await exec(cmd);
+        if(err) {
+            console.error('an error occured where controllers/revealgo.js/runIfNeeded');
+            console.error(cmd);
+            console.error(err);
             return;
-        //});
+        }
+
+
+
+        const processObj = {
+            user_id: slide.user_id || slide.getDataValue('user_id'),
+            port: max
+        };
+        await models.processes.create(processObj);
+
+        cb();
+        return;
     },
     runIfNeeded: async function(slide, process) {
         let idlePort = await this.checkPort(process.port || process.getDataValue('port'));
-        console.log(`idlePort? : ${idlePort}`);
 
         if(!idlePort) return;
 
@@ -62,8 +56,6 @@ module.exports.reveal = {
         });
     },
     checkPort: async function(port) {
-        console.log(`checking port: ${port}`);
-        console.log(`typeof : ${typeof port}`);
         if(!port) return false;
         if(!typeof port === 'number') return false;
 
@@ -88,7 +80,6 @@ module.exports.reveal = {
         let motion = slide.motion || slide.getDataValue('motion');
         let path = slide.markdown_path || slide.getDataValue('markdown_path');
         let port = process.port || process.getDataValue('port');
-        console.log(`design: ${design}, motion: ${motion}, path: ${path}, port: ${port}`);
         if(!design || !motion || !path || !port) return false;
 
         let cmd = "revealgo";
@@ -100,7 +91,6 @@ module.exports.reveal = {
     },
     killProcess: async function(port) {
         const {stdout, stderr} = await exe(`lsof -i:${port}`, {shell: true}).catch((err) => {
-            console.log('running process is not exist.');
             return;
         });
 
