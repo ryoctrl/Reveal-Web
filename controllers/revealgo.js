@@ -6,60 +6,112 @@ const defaultPort = 9500;
 const models = require('../models');
 
 module.exports.reveal = {
-    runAsNewProcess: async function(path, cb) {
+    runAsNewProcess: async function(slide, cb) {
         let max = await models.processes.max('port');
         max = Number.isNaN(max) ? defaultPort : max;
-        let newPort = max + 1;
-        let cmd = 'revealgo';
-        cmd += ` -p ${newPort}`;
-        cmd += ` ${path}`;
+        while(true) {
+            max++;
+            if(await this.checkPort(max)) break;
+        }
+        
+        let cmd = this.generateExecCommand(slide, {port: max});
+        console.log(cmd);
+        let {err, stdout, stderr} = await exec(cmd)
+           // , async (err, stdout, stderr) => {
+            if(err) {
+                console.error('an error occured where controllers/revealgo.js/runIfNeeded');
+                console.error(cmd);
+                console.error(err);
+                return;
+            }
+
+            console.log('command exec succeeded');
 
 
-        const callback = async (err) => {
-            console.log('プロセス起動コールバックが呼ばれました');
-            exec(cmd, (err, stdout, stderr) => {
-                if(err) console.log(err);
-            });
-
-            let query = {
-                where: {
-                    markdown_path: path
-                }
-            };
-
-            let slide = await models.slides.findOne(query);
             const processObj = {
-                user_id: slide.getDataValue('user_id'),
-                port: newPort
+                user_id: slide.user_id || slide.getDataValue('user_id'),
+                port: max
             };
             await models.processes.create(processObj);
+            console.log('created process record');
+
             cb();
             return;
-        }
-
-        //lsofコマンドの特性上、そのポートをしているアプリケーションがない場合にexitCode1を返すため、catchされることとなる。
-        //なのでcatch内に本来行うべきを記述しなければならない
-        do {
-            console.log(`${newPort} での起動を試みます`);
-            const {stdout, stderr} = await exe(`lsof -i:${newPort}`, { shell: true }).catch(callback);
-            newPort++;
-        }while(!stdout && !stderr);
+        //});
     },
-    runIfNeeded: async function(path, port) {
-        //if lsof -i:xxxx > /dev/null; then echo in use; else echo open; fi
-        //TODO: Catchを使わなくてもよいように変更する。上記参考
-        const {stdout, stderr} = await exe(`if sudo lsof -i:28089 >/dev/null; then echo in use; else echo open; fi`, {shell: true})
-        const {stdout, stderr} = await exe(`lsof -i:${port}`, {shell: true}).catch((err) => {
-            let cmd = "revealgo";
-            cmd += ` -p ${port}`;
-            cmd += ` ${path}`;
-            exec(cmd, (err, stdout, stderr) => {
-                if(err) console.log(err);
-            });
+    runIfNeeded: async function(slide, process) {
+        let idlePort = await this.checkPort(process.port || process.getDataValue('port'));
+        console.log(`idlePort? : ${idlePort}`);
+
+        if(!idlePort) return;
+
+        const cmd = this.generateExecCommand(slide, process);
+
+        exec(cmd, (err, stdout, stderr) => {
+            if(err) {
+                console.error('an error occured where controllers/revealgo.js/runIfNeeded');
+                console.error(cmd);
+                console.error(err);
+            }
+
+            if(stderr) {
+                console.error('an error occured where controllers/revealgo.js/runIfNeeded');
+                console.error(cmd);
+                console.error('stderr');
+            }
         });
     },
-    checkPort: function(port) {
-        return true;
-    }
+    checkPort: async function(port) {
+        console.log(`checking port: ${port}`);
+        console.log(`typeof : ${typeof port}`);
+        if(!port) return false;
+        if(!typeof port === 'number') return false;
 
+        const shcmd = `if lsof -i:${port} > /dev/null; then echo false; else echo true;fi`
+        let {stdout, stderr} = await exe(shcmd, {shell: true});
+        stdout = stdout.length > 4 ? stdout.substr(0, 4) : stdout;
+        return stdout === 'true';
+    },
+    rebootReveal: async function(slide, process) {
+        let port = process.port || process.getDataValue('port');
+        if(!port) return;
+        await this.killProcess(port);
+        
+        let cmd = this.generateExecCommand(slide, process);
+        if(!cmd) return;
+        exec(cmd, (err, stdout, stderr) => {
+            if(err) console.log(err);
+        });
+    },
+    generateExecCommand: function(slide, process) {
+        let design = slide.design || slide.getDataValue('design');
+        let motion = slide.motion || slide.getDataValue('motion');
+        let path = slide.markdown_path || slide.getDataValue('markdown_path');
+        let port = process.port || process.getDataValue('port');
+        console.log(`design: ${design}, motion: ${motion}, path: ${path}, port: ${port}`);
+        if(!design || !motion || !path || !port) return false;
+
+        let cmd = "revealgo";
+        cmd += ` -p ${port}`;
+        cmd += ` --theme ${design}`;
+        cmd += ` --transition ${motion}`;
+        cmd += ` ${path}`;
+        return cmd;
+    },
+    killProcess: async function(port) {
+        const {stdout, stderr} = await exe(`lsof -i:${port}`, {shell: true}).catch((err) => {
+            console.log('running process is not exist.');
+            return;
+        });
+
+        if(!stdout) return;
+
+        let lines = stdout.split('\n');
+
+        if(lines.length < 2) return;
+        let pid = lines[1].split(' ')[1];
+        exec(`kill ${pid}`, (err, stdout, stderr) => {
+            console.log('killed');
+        });
+    }
 }

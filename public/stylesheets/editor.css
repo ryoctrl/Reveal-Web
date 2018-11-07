@@ -50,3 +50,22 @@ button {
     width: 10vw;
     height: 3vh;
 }
+
+#contents {
+    width: 100vw;
+    height: 100vh;
+    display: flex-inline;
+}
+
+#previews {
+    margin-left: 50vw;
+    display: flex;
+    flex-direction: column;
+}
+
+iframe {
+    width: 45vw;
+    height: 45vh;
+    bottom: 5px;
+    right: 5px;
+}

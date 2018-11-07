@@ -18,7 +18,7 @@ const reveal = require('../controllers/revealgo.js').reveal;
   size: 174 }
   */
 
-router.post('/', upload.single('markdown'), (req, res, next) => {
+router.post('/', upload.single('markdown'), async (req, res, next) => {
     if(!req.session.msg) req.session.msg = {};
     let user = req.session.user;
     let file = req.file;
@@ -42,36 +42,34 @@ router.post('/', upload.single('markdown'), (req, res, next) => {
             user_id: user.id
         }
     }
-    models.slides.findOne(query).then((record) => {
-        if(!record) {
-            const slidesObj = {
-                user_id: user.id,
-                markdown_path: path
-            }
-            models.slides.create(slidesObj)
-                .then((record) => {
-                    reveal.runAsNewProcess(path, () => {
-                        console.log('return user page');
-                        res.redirect(`users/${user.name}`);
-                        return;
-                    });
-                    return;
-                }).catch((err) => {
-                    console.log(err);
-                    return;
-                });
-            return;
-        }
 
-        let oldPath = record.getDataValue('markdown_path');
-        fs.rename(path, oldPath, (err) => {
-            if(err) console.log(err);
+    let record = await models.slides.findOne(query);
+
+    if(!record) {
+        console.log('slide record not found! creating new slide and process record');
+        const slideObj = {
+            user_id: user.id,
+            markdown_path: path,
+            design: 'black',
+            motion: 'default'
+        };
+        record = await models.slides.create(slideObj);
+        reveal.runAsNewProcess(record, () => {
+            res.redirect(`users/${user.name}`);
             return;
         });
-        res.redirect(`users/${user.name}`);
-    }).catch((err) => {
-        console.log('find error');
+        return;
+    }
+
+    let oldPath = record.markdown_path || record.getDataValue('markdown_path');
+    fs.rename(path, oldPath, (err) => {
+        if(err) {
+            console.error('an error occured where routes/upload.js/post:/');
+            console.error(err);
+        }
+        return;
     });
+    res.redirect(`users/${user.name}`);
 });
 
 

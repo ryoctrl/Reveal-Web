@@ -39,18 +39,16 @@
                         this.$http.post('/editor', obj, function(data, stat, request) {});
                     },
                     save: function() {
-                        console.log('save');
                         this.postInput();
+                        document.getElementsByTagName('iframe')[0].contentDocument.location.reload(true);
                     },
                     saveAndView: function() {
-                        console.log('save and view');
                         this.postInput();
                         location.href='/users/<%= name %>/slide';
                     },
                     back: function() {
-                        console.log('save and back');
                         this.postInput();
-                        history.back();
+                        location.href='/users/<%= name %>';
                     },
                 }
             });
@@ -68,9 +66,18 @@
             <button onclick="history.back()">保存せず戻る</button>
             <p style="display: inline;"> Tabキーでインデント, Ctrl+Sで保存のキーバインドが使用できます。</p>
       </header>
-
-            <textarea id='input' v-model='input' debounce='100'></textarea>
-            <div id='output' v-html='input | marked' ></div>
+      
+      <div id="contents">
+          <div id="inputs">
+              <textarea id="input" v-model="input" debounce='100'></textarea>
+          </div>
+          <div id="previews">
+              <!--
+                <div id='output' v-html='input | marked' ></div>
+              -->
+                <iframe src="https://revealweb.mosin.jp/users/<%=name%>/slide"></iframe>
+            </div>
         </div>
+      </div>
   </body>
 </html>

@@ -15,6 +15,7 @@
     "http-errors": "~1.6.2",
     "mailer": "^0.6.7",
     "mariadb": "^2.0.0-alpha",
+    "markdown-pdf": "^9.0.0",
     "moment": "^2.22.2",
     "morgan": "~1.9.0",
     "multer": "^1.4.1",

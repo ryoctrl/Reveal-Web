@@ -1,9 +1,12 @@
 const express = require('express');
 const fs = require('fs');
+const markdownpdf = require('markdown-pdf');
 const router = express.Router();
 const request = require('request');
 const reveal = require('../controllers/revealgo.js').reveal;
 const models = require('../models');
+const ALLOW_DESIGNS = ['beige', 'black', 'blood', 'league', 'moon', 'night', 'serif', 'simple', 'sky', 'solarized', 'white'];
+const ALLOW_MOTIONS = ["default", "cube", "page", "concave", "zoom", "linear", "fade", "none"];
 
 //userSession: ログイン済みの場合ユーザー情報がある。
 //これがnullである場合、アクセスユーザーは未ログイン状態。
@@ -66,7 +69,11 @@ router.get('/:name', async (req, res, next) => {
     let obj = {
         username: user.name,
         slide: false,
-        msg: req.session.msg
+        msg: req.session.msg,
+        selectingDesign: "null",
+        selectingMotion: "null",
+        designs: ALLOW_DESIGNS,
+        motions: ALLOW_MOTIONS
     };
 
     const query = {
@@ -80,7 +87,9 @@ router.get('/:name', async (req, res, next) => {
     if(process && slide) {
         obj.slide = true;
         obj.shared = slide.getDataValue('shared');
-        reveal.runIfNeeded(slide.getDataValue('markdown_path'), process.getDataValue('port'));
+        obj.selectingDesign = slide.design;
+        obj.selectingMotion = slide.motion;
+        await reveal.runIfNeeded(slide, process);
     }
     res.status(200).render('users', obj);
     req.session.msg.users = [];
@@ -134,9 +143,12 @@ router.get('/:name/slide', async (req, res, next) => {
     let sessionUser = req.session.user;
     let requestedUserName = req.params.name;
 
+    console.log('checkAccessProcess');
     let accessProcess = await getAccessProcess(sessionUser, requestedUserName); 
+    console.log('ok access');
 
     if(accessProcess) {
+        console.log('returning');
         let port = accessProcess.getDataValue('port');
         let url = 'http://127.0.0.1:' + port;
         request({
@@ -157,6 +169,8 @@ router.get('/:name/revealjs/*', async (req, res, next) => {
     let sessionUser = req.session.user;
     let requestedUserName = req.params.name;
 
+    //TODO: 本当にアクセス管理をするべきか検討する（アクセス管理が必要な場合現状多数のSQL問い合わせが必要になる)
+    //let accessProcess = true;
     let accessProcess = await getAccessProcess(sessionUser, requestedUserName);
 
     if(accessProcess) {
@@ -192,6 +206,121 @@ router.get('/:name/uploads/*', async(req, res, next) => {
 
     res.redirect(`/users/${user.name}`);
     return;
+});
+
+router.post('/:name/design', async(req, res, next) => {
+    let sessionUser = req.session.user;
+    if(!sessionUser) {
+        res.status(403);
+        res.end();
+        return;
+    }
+    let design = req.body.design;
+
+    if(ALLOW_DESIGNS.indexOf(design) == -1) {
+        res.status(500);
+        res.end();
+        return;
+    }
+
+    let query = {
+        where: {
+            user_id: sessionUser.id
+        }
+    };
+
+    let slide = await models.slides.findOne(query);
+    await slide.update({design: design});
+    await reveal.rebootReveal(slide, await models.processes.findOne(query));
+
+    res.status(200);
+    res.end();
+});
+
+router.post('/:name/motion', async(req, res, next) => {
+    let sessionUser = req.session.user;
+    if(!sessionUser) {
+        res.status(403);
+        res.end();
+        return;
+    }
+
+    let motion = req.body.motion;
+
+    if(ALLOW_MOTIONS.indexOf(motion) == -1) {
+        res.status(500);
+        res.end();
+        return;
+    }
+
+    let query = {
+        where: {
+            user_id: sessionUser.id
+        }
+    };
+
+    let slide = await models.slides.findOne(query);
+    await slide.update({motion: motion});
+    await reveal.rebootReveal(slide, await models.processes.findOne(query));
+
+    res.status(200);
+    res.end();
+});
+
+router.get('/:name/download/md', async function(req, res, next) {
+    let sessionUser = req.session.user;
+    if(!sessionUser) {
+        res.status(403);
+        res.end();
+        return;
+    }
+
+
+    let query = {
+        where: {
+            user_id: sessionUser.id
+        }
+    };
+    let slide = await models.slides.findOne(query);
+    if(!slide) {
+        res.status(404);
+        res.end();
+        return;
+    }
+
+    let mdpath = slide.getDataValue('markdown_path');
+    let filename = sessionUser.name + '.md';
+    console.log(mdpath + " : " + filename);
+
+    res.download(mdpath, filename);
+
+});
+
+router.get('/:name/download/pdf', async function(req, res, next) {
+    let sessionUser = req.session.user;
+    if(!sessionUser) {
+        res.status(403);
+        res.end();
+        return;
+    }
+
+
+    let query = {
+        where: {
+            user_id: sessionUser.id
+        }
+    };
+    let slide = await models.slides.findOne(query);
+    if(!slide) {
+        res.status(404);
+        res.end();
+        return;
+    }
+
+    let mdpath = slide.getDataValue('markdown_path');
+    let filename = sessionUser.name + '.md';
+
+    fs.createReadStream(mdpath).pipe(markdownpdf()).pipe(res);
 });
 
 module.exports = router;

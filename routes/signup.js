@@ -18,16 +18,20 @@ router.get('/', (req, res, next) => {
 });
 
 router.post('/', async (req, res, next) => {
+    //TODO: メール機能を正常に動作させる。
     if(!req.session.msg) req.session.msg = {};
     const name = req.body.username;
     let password = req.body.password;
-    const email = req.body.email;
-    if(!name || !password || !email) {
-        req.session.msg.signup = ["ユーザー名, パスワード, メールアドレス全て入力してください"];
+    //const email = req.body.email || "NoMail";
+    if(!name || !password) {
+    //if(!name || !password || !email) {
+        //req.session.msg.signup = ["ユーザー名, パスワード, メールアドレス全て入力してください"];
+        req.session.msg.signup = ['ユーザー名, パスワード共に入力してください'];
         res.redirect('/signup');
         return;
     }
 
+    /*
     let query = {
         where: {
             email: email
@@ -41,6 +45,7 @@ router.post('/', async (req, res, next) => {
         res.redirect('/signup');
         return;
     }
+    */
 
     query = {
         where: {
@@ -59,7 +64,7 @@ router.post('/', async (req, res, next) => {
     bcrypt.hash(password, 10, async (err, hash) => {
         const userObj = {
             name: name,
-            email: email,
+            email: "NoMail",
             password_hash: hash
         };
 
@@ -76,13 +81,18 @@ router.post('/', async (req, res, next) => {
             return;
         }
 
+        req.session.msg.login = [];
+        req.session.msg.login.push('登録したアカウント情報でログインしてください');
+        res.redirect('login');
 
+        /*
         mailer.sendConfirm(email, function (err, result) {
             req.session.msg.login = [];
             if(err) req.session.msg.login.push('確認メールの送信時に何らかのエラーが発生しました。');
             else req.session.msg.login.push('確認メールを送信しました。');
             res.redirect('login');
         });
+        */
     });
 });
 

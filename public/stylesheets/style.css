@@ -18,17 +18,34 @@ h4 {
     font-size: 2.0em;
 }
 
+.wrapper {
+    display: flex;
+}
+
+
+iframe {
+    width: 70vw;
+    height: 36vw;
+}
+
 .contents {
     position: relative;
     top: 10vh;
     margin: 0 auto;
 }
 
-
 .buttons {
     display: flex;
     width: 25%;
     margin: 30px auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-buttons {
+    display: flex;
+    width: 25%;
+    margin: 0px 10px;
     align-items: center;
     justify-content: space-between;
 }
@@ -50,7 +67,7 @@ h4 {
     border-radius: 4px;
     cursor: pointer;
     margin: 10px;
-    width: 15vw;
+    width: 20vw;
 }
 
 .upload_button {
@@ -72,6 +89,30 @@ h4 {
 .button:hover {
     color: #FFFFFF;
     background-color: #333333;
+    transition-duration: 300ms;
 }
 
+@media screen and (max-width: 767px) {
+    .wrapper {
+        display: flex;
+        flex-direction: column-reverse;
+    }
 
+    iframe {
+        width: 80vw;
+        height: 45vw;
+    }
+
+    .menu-buttons {
+        width: 80vw;
+        margin: 0 auto;
+    }
+
+    .button {
+        width: 70vw;
+        height: 5vh;
+        line-height: 4vh;
+        font-size: 16px;
+    }
+
+}

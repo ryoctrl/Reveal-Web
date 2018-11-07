@@ -1,43 +1,138 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>RevealWeb</title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-    <script src="/js/uploader.js"></script>
-  </head>
-  <body>
-      <h2> Hello! <%= username %> </h2>
-
-      <% if(msg && 'users' in msg) { %>
-        <% for( m of msg.users) { %>
-            <p> <%= m %> </p>
-        <% } %>
-        <% } %>
-
-      <div class="buttons menu">
-      <% if (slide) { %>
-        <button class="button" onclick="location.href='/users/<%=username%>/slide'"> スライドを表示 </button>
-        <button class="button" onclick="location.href='/editor'">Markdownを編集</button>
-        <button class="button" onclick="location.href='/users/<%=username%>/changeShare'">
-            <% if(!shared) { %> 
-            スライドを共有 
-            <% } else { %> 
-            スライドを共有しない
-            <% } %>
-        </button>
-
+    <head>
+        <title>RevealWeb</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <% if(slide) { %>
+        <link rel='stylesheet' href='/stylesheets/style.css' />
+        <link rel='stylesheet' href='/stylesheets/dropdown.css' />
         <% } else { %>
-            <p> Markdownファイルがアップロードされていません。</p>
-            <p> Markdownファイルをアップロードするとスライドの閲覧・編集ができるようになります</p>
-        <% } %>
-        <button id="filebtn" class="button" onClick="selectFileClicked();">ファイルを選択</button>
+        <link rel='stylesheet' href='/stylesheets/no-md-style.css'/>
 
-          <form method="POST" enctype="multipart/form-data" action="/upload">
-              <input id="mdfile" type="file" name="markdown" style="display:none;" accept=".md">
-              <div>
-                  <input id="uploadbtn" class="button" type="submit" value="upload" style="display: none;">
-              </div>
-          </form>
-      </div>
-  </body>
+        <% } %>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.js'></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+        <script src="/js/uploader.js"></script>
+        <script src="/js/vue-components.js"></script>
+        <% if(slide) { %>
+        <script>
+            window.addEventListener('load', function() {
+                let motionVM = new Vue({
+                    el: '#motion_dropdown',
+                    data: function() {
+                        return {
+                            showMenu: false,
+                            motion: '<%= selectingMotion %>',
+                            motions: [
+                                <% for(motion of motions) { %>
+                                        "<%= motion %>",
+                                        <% } %>
+                            ]
+                        };
+                    },
+                    methods: {
+                        setMotion: function(motion) {
+                            this.motion = motion;
+                            console.log('updating motion');
+                            this.$http.post('<%=username%>/motion', {motion: this.motion}).then((res) => {
+                                console.log('post success');
+                                console.log(res);
+                                document.getElementsByTagName('iframe')[0].contentDocument.location.reload(true);
+                            });
+                        },
+                        hideMenu: function() {
+                            this.showMenu = false;
+                        }
+                    }
+
+                });
+                let vm = new Vue({
+                    el: '#design_dropdown',
+                    data: function() {
+                        return {
+                            showMenu: false,
+                            design: '<%= selectingDesign%>',
+                            designs: [
+                                <% for(design of designs) { %>
+                                        "<%= design %>",
+                                        <% } %>
+                            ],
+                        };
+                    },
+                    methods: {
+                        setDesign: function(design) {
+                            this.design = design;
+                            this.$http.post('<%=username%>/design', {design: this.design}).then((res) => {
+                                console.log('post success');
+                                console.log(res);
+                                document.getElementsByTagName('iframe')[0].contentDocument.location.reload(true);
+                            });
+                        },
+                        hideMenu: function() {
+                            this.showMenu = false;
+                        }
+                    }
+                });
+            });
+        </script>
+        <% } %>
+    </head>
+    <body>
+        <h2> Hello! <%= username %> </h2>
+
+        <% if(msg && 'users' in msg) { %>
+        <% for( m of msg.users) { %>
+        <p> <%= m %> </p>
+        <% } %>
+        <% } %>
+
+        <div class="wrapper">
+            <div class="menu-buttons menu">
+                <% if (slide) { %>
+                <button class="button" onclick="location.href='/users/<%=username%>/slide'"> スライドを表示 </button>
+                <button class="button" onclick="location.href='/editor'">Markdownを編集</button>
+                <button class="button" onclick="location.href='/users/<%=username%>/changeShare'">
+                    <% if(!shared) { %> 
+                    スライドを共有 
+                    <% } else { %> 
+                    スライドを共有しない
+                    <% } %>
+                </button>
+                <div id="design_dropdown">
+                    <button class="button" @click.stop="showMenu = !showMenu;">デザイン: {{ design }}</button>
+                    <dropdown-menu :items="designs" @set="setDesign" @hide="hideMenu" v-if="showMenu" v-on:close="showMenu = false"></dropdown-menu>
+                </div>
+
+                <div id="motion_dropdown">
+                    <button class="button" @click.stop="showMenu = !showMenu;">モーション: {{ motion }} </button>
+                    <dropdown-menu :items="motions" @set="setMotion" @hide="hideMenu" v-if="showMenu" v-on:close="showMenu = false"></dropdown-menu>
+                </div>
+
+                <button class="button" onclick="location.href='<%=username%>/download/md'"> Markdownをダウンロード</button>
+                <button class="button" onclick="location.href='<%=username%>/download/pdf'"> PDFをダウンロード</button>
+
+
+                <% } else { %>
+                <p> Markdownファイルがアップロードされていません。</p>
+                <p> Markdownファイルをアップロードするとスライドの閲覧・編集ができるようになります</p>
+                <% } %>
+                <button id="filebtn" class="button" onClick="selectFileClicked();">ファイルを選択</button>
+
+                <form method="POST" enctype="multipart/form-data" action="/upload">
+                    <input id="mdfile" type="file" name="markdown" style="display:none;" accept=".md">
+                    <div>
+                        <input id="uploadbtn" class="button" type="submit" value="upload" style="display: none;">
+                    </div>
+                </form>
+            </div>
+            <% if (slide) { %>
+            <div id="preview" >
+                <iframe src="https://revealweb.mosin.jp/users/<%=username%>/slide"></iframe>
+            </div>
+            <% } %>
+        </div>
+
+        <p> スライドを共有することで<a href="https://revealweb.mosin.jp/users/<%= username %>/slide"> https://revealweb.mosin.jp/users/<%= username %>/slide</a>で誰でもアクセスできるようになります。</p>
+        <p> スライドを共有しない場合はあなたしかアクセスできません。</p>
+    </body>
 </html>

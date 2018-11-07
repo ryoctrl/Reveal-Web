@@ -14,7 +14,6 @@ router.get('/', (req, res, next) => {
         msg: req.session.msg
     }
     res.render('login', obj);
-    req.session.msg.login = [];
 });
 
 router.post('/', async (req, res, next) => {

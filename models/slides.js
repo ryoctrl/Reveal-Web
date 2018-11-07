@@ -3,7 +3,9 @@ module.exports = (sequelize, DataTypes) => {
   const slides = sequelize.define('slides', {
     user_id: DataTypes.INTEGER,
     markdown_path: DataTypes.STRING,
-    shared: DataTypes.BOOLEAN
+    shared: DataTypes.BOOLEAN,
+    design: DataTypes.STRING,
+    motion: DataTypes.STRING,
   }, {
     underscored: true,
   });
