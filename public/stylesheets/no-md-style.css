@@ -1,0 +1,97 @@
+body {
+    background: #FFFFFF;
+    color: #22222;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: center;
+}
+
+h1 {
+    font-size: 7.5em;
+}
+
+h3 {
+    font-size: 3.0em;
+}
+
+h4 {
+    font-size: 2.0em;
+}
+
+iframe {
+    width: 70vw;
+    height: 36vw;
+}
+
+.contents {
+    position: relative;
+    top: 10vh;
+    margin: 0 auto;
+}
+
+.buttons {
+    display: flex;
+    width: 25%;
+    margin: 30px auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-buttons {
+    display: flex;
+    width: 25%;
+    margin: 0px 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.menu {
+    flex-direction: column;
+    margin: 0 auto;
+
+}
+
+.button {
+    color: #FFFFFF;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    padding: 6px 12px;
+    font-size: 22px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 10px;
+    width: 20vw;
+}
+
+.upload_button {
+    display: inline;
+    color: #FFFFFF;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    padding: 6px 12px;
+    font-size: 16px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+
+.button:hover {
+    color: #FFFFFF;
+    background-color: #333333;
+    transition-duration: 300ms;
+}
+
+@media screen and (max-width: 767px) {
+
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+    }
+}
