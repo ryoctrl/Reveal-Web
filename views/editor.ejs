@@ -8,16 +8,32 @@
     
     <title>MarkdownEditor</title> 
     
+    <!--VueJS-->
     <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.10/vue.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.js'></script>
     <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+    <!--VueJS-->
+    <!--AlertifyJS-->
+    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/alertify.min.js"></script>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/css/alertify.min.css"/>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/css/themes/default.min.css"/>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/css/themes/semantic.min.css"/>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/css/themes/bootstrap.min.css"/>
+    <!--AlertifyJS-->
+    <!--OriginalResource-->
     <script src="/js/editor_events.js"></script>
-
+    <script src="/js/editor.js"></script>
     <link rel="stylesheet" type="text/css" href="/stylesheets/editor.css">
 
     <script>
         window.onload = function() {
-            new Vue({
+            <% if(resources.length > 0) { %>
+            this.resources = <%-resources%>;
+            <% } else { %>
+            this.resources = [];
+            <%}%>
+            this.vuemd = new Vue({
                 el: '#editor',
                 data: {
                     input: `<%- data %>`
@@ -50,21 +66,56 @@
                         this.postInput();
                         location.href='/users/<%= name %>';
                     },
+                    notSaveBack: function() {
+                        if(this.changed) {
+                            alertify.confirm('Confirm', '保存されていない変更があります。\n保存せず戻ってよろしいですか?',
+                                function() {
+                                    location.href='/users/<%= name %>';
+                                },
+                                function() {});
+                        } else {
+                            location.href='/users/<%= name %>';
+                        }
+                    },
+                    openPictureModal: function() {
+                        displayUploader();
+                    },
+                    openMovieModal: function() {
+                        displayMovie();
+                    },
+                    openFragmentsModal: function() {
+                        displayFragments();
+                    },
+                    openSpeakerNote: function() {
+                        insertNote();
+                    },
+                    openHelp: function() {
+                        displayHelp(<%= isCSS %>);
+                    },
                 }
             });
         };
 
     </script>
+    <!--OriginalResource-->
   </head>
   <body>
 
       <div id="editor">
       <header>
+          <div id="edit-contents">
+              <button id="picture-button" class="button" v-on:click="openPictureModal" <%if(isCSS) {%>style="background:#ccc" disabled <%}%>>画像を挿入</button>
+              <button id="movie-button" class="button" v-on:click="openMovieModal"<%if(isCSS){%>style="background:#ccc" disabled <%}%>>動画を挿入</button>
+              <button id="fragments-button" class="button" v-on:click="openFragmentsModal"<%if(isCSS){%>style="background:#ccc" disabled <%}%>>効果文字を挿入</button>
+              <button id="notes-button" class="button" v-on:click="openSpeakerNote"<%if(isCSS){%>style="background:#ccc" disabled <%}%>>スピーカーノート</button>
+              <button id="help-button" class="button" v-on:click="openHelp">ヘルプ</button>
+          </div>
+          <div id="save-contents">
             <button id="save_button" class="button" v-on:click="save">Save</button>
             <button id="confirm_button" class="button" v-on:click="saveAndView">Save&View</button>
             <button id="back_button" class="button" v-on:click="back">保存して戻る</button>
-            <button onclick="history.back()">保存せず戻る</button>
-            <p style="display: inline;"> Tabキーでインデント, Ctrl+Sで保存のキーバインドが使用できます。</p>
+            <button id="nosave_button" class="button" v-on:click="notSaveBack">保存せず戻る</button>
+          </div>
       </header>
       
       <div id="contents">

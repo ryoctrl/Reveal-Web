@@ -2,41 +2,10 @@
   box-sizing: border-box; 
 }
 body {
-/*  color: #444;*/
-  /*background-color: hsl(0, 2%, 56%);*/
   overflow: hidden;
+  margin: 0 5px;
 }
 
-#input, #output {
-  display: block;
-  position: absolute;
-  top: 50px;
-  width: 50vw;
-  height: 97vh;
-  padding: 20px;
-  outline: none;
-  border: none;
-}
-
-#input {
-  font-size: 20px;
-  left: 0px;
-  background-color: #666666;
-  color: #ffffff;
-  /*border-right: 5px solid rgb(65, 52, 52);*/
-}
-#output {
-  right: 0px;
-  overflow: auto;
-  overflow-x: hidden;
-  width: 48%;
-}
-
-ul {
-  padding: 1rem;
-  margin: 1rem;
-}
-  
 button {
     color: #FFFFFF;
     background-color: #337ab7;
@@ -51,16 +20,71 @@ button {
     height: 3vh;
 }
 
+header {
+    height: 5vh;
+    padding: 1vh 0;
+    display: flex;
+    justify-content: space-between;
+}
+
 #contents {
     width: 100vw;
     height: 100vh;
-    display: flex-inline;
+    display: flex;
+}
+
+#input {
+  display: block;
+  position: absolute;
+  top: 50px;
+  width: 50%;
+  height: 94vh;
+  margin-bottom: 5px;
+  margin-left: 5px;
+  padding: 20px;
+  font-size: 20px;
+  left: 0px;
+  background-color: #F6F6F6;
 }
 
 #previews {
     margin-left: 50vw;
+    width: 50vw;
     display: flex;
     flex-direction: column;
+}
+
+#output,
+#css-output{
+  right: 0px;
+  overflow: auto;
+  overflow-x: hidden;
+  width: 45vw;
+  height: 45vh;
+  margin: 0 auto;
+}
+
+#css-output {
+    background-color: #ccc;
+}
+
+#css-header,
+.css-data{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.css-col {
+    background-color: #fff;
+    width: 33%;
+    text-align: center;
+    margin: 0 5px;
+}
+
+
+#output img {
+    max-width: 100%;
 }
 
 iframe {
@@ -68,4 +92,35 @@ iframe {
     height: 45vh;
     bottom: 5px;
     right: 5px;
+    top: 5px;
+    margin: 0 auto;
+}
+
+#res-header {
+    display: flex;
+    justify-content: space-evenly;
+    width: 97%;
+}
+
+#res-contents {
+    max-height: 60vh;
+    overflow: scroll;
+}
+
+.res-content {
+    display: flex;
+    justify-content: space-evenly;
+    vertical-align: middle;
+}
+
+.res-col {
+    width: 25%;
+    text-align: center;
+}
+
+
+
+.res-col img,
+.res-col button{
+    max-width: 100%;
 }

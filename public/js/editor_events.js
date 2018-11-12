@@ -17,8 +17,9 @@ document.onkeypress = function(e) {
     }
 } 
 
+
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('input').addEventListener('keydown', function(e) {
+      document.getElementById('input').addEventListener('keydown', function(e) {
         var elem, end, start, value;
         if(e.keyCode === 9) {
             if(e.preventDefault) {
@@ -32,6 +33,21 @@ document.addEventListener('DOMContentLoaded', function() {
             elem.selectionStart = elem.selectionEnd = start + 1;
             return false;
         }
+    });
+    let ifr = document.getElementsByTagName('iframe')[0];
+    ifr.addEventListener('load', function() {
+        let insideIfrs = ifr.contentDocument.body.getElementsByTagName('iframe');
+        for(let i of insideIfrs) {
+            i.addEventListener('click', function() {
+                console.log('ccc');
+                displayElements(e.path);
+            });
+        }
+        ifr.contentDocument.body.addEventListener('click', function(e) {
+            displayElements(e.path);
+        });
 
     });
 });
+
+
