@@ -42,6 +42,13 @@ module.exports.reveal = {
 
         const cmd = this.generateExecCommand(slide, process);
 
+        let { stdout, stderr } = await exe(cmd, {shell: true});
+
+        if(stderr) {
+            console.error('an error has occured where controllers/revealgo.js/runifNeeded');
+        }
+
+        /*
         exec(cmd, (err, stdout, stderr) => {
             if(err) {
                 console.error('an error occured where controllers/revealgo.js/runIfNeeded');
@@ -55,6 +62,7 @@ module.exports.reveal = {
                 console.error('stderr');
             }
         });
+        */
     },
     checkPort: async function(port) {
         if(!port) return false;
