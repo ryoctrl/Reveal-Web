@@ -92,6 +92,8 @@ router.get('/:name', async (req, res, next) => {
         obj.selectingMotion = slide.motion;
         await reveal.runIfNeeded(slide, process);
     }
+    console.log(obj.designs);
+    console.log(obj.selectingDesign);
     res.status(200).render('users', obj);
     req.session.msg.users = [];
     return;
@@ -180,14 +182,36 @@ router.get('/:name/revealjs/*', async (req, res, next) => {
     let accessProcess = await getAccessProcess(sessionUser, requestedUserName);
 
     if(accessProcess) {
+        /*
+let qery = {
+        where: {
+            name: requestedUserName
+        }
+    };
+        let user = await models.processes.findOne(query);
+        let process = await models.processes.findOne(user.id);
+        */
+
         let reqPath = req.originalUrl;
         reqPath = reqPath.split(requestedUserName)[1];
+        console.log(reqPath);
         let url = 'http://127.0.0.1:' + accessProcess.getDataValue('port') + reqPath;
         request({
             url: url,
             method: 'GET'
         }).pipe(res);
         return;
+
+        /*
+        try {
+        } catch(e) {
+            console.error('an error has occured on /users/:name/revealjs/');
+            console.error(e);
+            res.status(500);
+            res.end();
+            return;
+        }
+        */
     } else {
         res.status(404).end();
     }
@@ -210,14 +234,24 @@ router.get('/:name/uploads/*', async(req, res, next) => {
 
         f = f.substr(1);
 
+
         fs.createReadStream(f).once('open', function() {
             this.pipe(res);
         });
         return;
+        /*
+        try{
+        }catch(e) {
+            console.error('an error has occured on /users/:name/uploads/');
+            console.error(e);
+            res.status(500);
+            res.end();
+            return;
+        }
+        */
+    } else {
+        res.status(404).end();
     }
-
-    res.redirect(`/users/${user.name}`);
-    return;
 });
 
 router.post('/:name/design', async(req, res, next) => {
