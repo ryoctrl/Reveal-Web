@@ -26,6 +26,16 @@ router.get('/', async function(req, res, next) {
     //toString()しなくてもlog出力では確認できたけどreplaceが使えなかった
     let markdownString = fs.readFileSync(markdownPath).toString();
 
+    //リソースファイル系（画像等)
+    let resourceRecords = await models.resources.findAll(query);
+    let resources = [];
+    for(let rec of resourceRecords) {
+        resources.push({
+            name: rec.getDataValue('name'),
+            path: rec.getDataValue('path')
+        });
+    }
+
     //clientのvueオブジェクトに渡す際にテンプレートエンジンでレンダリングしなければならないので色々replace。
     //レンダリングしなくても直接vueに渡せる手法があるのであればそっちのがいい。
     //express-vueとかそれっぽい？
@@ -35,6 +45,7 @@ router.get('/', async function(req, res, next) {
 
     let obj = {
         data: markdownString,
+        resources: JSON.stringify(resources),
         name: user.name
     };
     res.render('editor', obj);
