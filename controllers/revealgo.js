@@ -4,6 +4,7 @@ const util = require('util');
 const exe = util.promisify(require('child_process').exec);
 const defaultPort = 9500;
 const models = require('../models');
+const fs = require('fs');
 
 module.exports.reveal = {
     runAsNewProcess: async function(slide, cb) {
@@ -77,6 +78,9 @@ module.exports.reveal = {
     },
     generateExecCommand: function(slide, process) {
         let design = slide.design || slide.getDataValue('design');
+        if(design === 'CustomCSS') {
+            design = slide.css || slide.getDataValue('css');
+        }
         let motion = slide.motion || slide.getDataValue('motion');
         let path = slide.markdown_path || slide.getDataValue('markdown_path');
         let port = process.port || process.getDataValue('port');
@@ -103,5 +107,25 @@ module.exports.reveal = {
         exec(`kill ${pid}`, (err, stdout, stderr) => {
             console.log('killed');
         });
+    },
+    generateCSS: async function(slide, process, username) {
+        let cssPath = `uploads/${username}-${slide.getDataValue('design')}.css`;
+        let cssExists = false;
+        try {
+            fs.statSync(cssPath);
+            cssExists = true;
+        } catch(err) {}
+        
+        if(cssExists) return cssPath;
+
+        let cmd = 'curl http://localhost:';
+        cmd += process.getDataValue('port');
+        cmd += '/revealjs/css/theme/';
+        cmd += slide.getDataValue('design');
+        cmd += '.css > ';
+        cmd += cssPath;
+
+        await exe(cmd, {shell: true});
+        return cssPath;
     }
 }
