@@ -55,7 +55,6 @@ router.get('/', async function(req, res, next) {
 router.post('/', async function(req, res, next) {
     let user = req.session.user;
     if(!user) {
-        console.log('not loggined');
         res.status(403);
         res.send('user not loggined');
         return;
