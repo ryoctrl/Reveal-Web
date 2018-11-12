@@ -25,7 +25,6 @@
     <script src="/js/editor_events.js"></script>
     <script src="/js/editor.js"></script>
     <link rel="stylesheet" type="text/css" href="/stylesheets/editor.css">
-
     <script>
         window.onload = function() {
             <% if(resources.length > 0) { %>
@@ -36,15 +35,16 @@
             this.vuemd = new Vue({
                 el: '#editor',
                 data: {
-                    input: `<%- data %>`
+                    input: `<%- data %>`,
+                    changed: false
                 },
                 filters: {
                     marked: marked,
                 },
                 watch: {
                     input: function(newInput, oldInput) {
-                        console.log('change');
                         if(newInput === oldInput) return;
+                        this.changed = true;
                     }
                 },
                 methods: {
@@ -111,8 +111,7 @@
     <!--OriginalResource-->
   </head>
   <body>
-
-      <div id="editor">
+            <div id="editor">
       <header>
           <div id="edit-contents">
               <button id="picture-button" class="button" v-on:click="openPictureModal" <%if(isCSS) {%>style="background:#ccc" disabled <%}%>>画像を挿入</button>
@@ -134,10 +133,24 @@
               <textarea id="input" v-model="input" debounce='100'></textarea>
           </div>
           <div id="previews">
-              <!--
-                <div id='output' v-html='input | marked' ></div>
-              -->
                 <iframe src="https://revealweb.mosin.jp/users/<%=name%>/slide"></iframe>
+                <div id="output" style="display: <%if(isCSS){%>none<%} else { %>block<% } %> " v-html="input | marked"></div>
+                <div id="css-output" style="display: <%if(!isCSS){%>none<%} else { %>block<% } %> ">
+                    <div id="css-header">
+                        <div class="css-col">
+                            <p>タグ</p>
+                        </div>
+                        <div class="css-col">
+                            <p>クラス</p>
+                        </div>
+                        <div class="css-col">
+                            <p>innerText</p>
+                        </div>
+                    </div>
+                    <div id="css-contents">
+                    </div>
+                
+                </div>
             </div>
         </div>
       </div>
