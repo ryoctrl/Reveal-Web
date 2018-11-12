@@ -72,5 +72,87 @@ router.post('/', upload.single('markdown'), async (req, res, next) => {
     res.redirect(`users/${user.name}`);
 });
 
+/*
+{ fieldname: 'resource',
+originalname: 'キャプチャ.PNG',
+encoding: '7bit',
+mimetype: 'image/png',
+destination: 'uploads/',
+filename: '66bfef2f4b089fa73d0e9c336c2db504',
+path: 'uploads/66bfef2f4b089fa73d0e9c336c2db504',
+size: 947485 }
+*/
+router.post('/resources', upload.single('resource'), async(req, res, next) => {
+    let user = req.session.user;
+    let file = req.file;
+    if(!user) {
+        fs.unlink(file.path, (err) => {});
+        res.status(403);
+        res.end();
+        return;
+    }
+
+    //正規のユーザーからpostされたresourceのレコードを作成する
+    let path = file.path;
+    let name = file.originalname;
+    let uid = user.id;
+    const resourceObj = {
+        user_id: uid,
+        path: path,
+        name: name
+    };
+
+    models.resources.create(resourceObj)
+        .then(() => {})
+        .catch((err) => {
+            console.error('an error has occured where routes/upload.js/resources post');
+            console.error(err);
+        });
+
+    res.status(200);
+    res.send(JSON.stringify({
+        name: name,
+        path: path
+    }));
+});
+
+router.post('/delete', async(req, res, next) => {
+    let user = req.session.user;
+    if(!user) {
+        res.status(403);
+        res.end('Authentication error');
+        return;
+    }
+
+    let delId = req.body.id;
+
+    if(!delId) {
+        res.status(400);
+        res.end('Bad Request');
+        return;
+    }
+
+    let query = {
+        where: {
+            user_id: user.id,
+            path: delId
+        }
+    }
+
+    let record = await models.resources.findOne(query);
+
+    if(!record) {
+        res.status(404);
+        res.end('no such file');
+        return;
+    }
+
+    let result = await record.destroy();
+
+    fs.unlinkSync(delId);
+
+    res.status(200);
+    res.end('delete success');
+});
 
 module.exports = router;
