@@ -5,7 +5,8 @@ const router = express.Router();
 const request = require('request');
 const reveal = require('../controllers/revealgo.js').reveal;
 const models = require('../models');
-const ALLOW_DESIGNS = ['beige', 'black', 'blood', 'league', 'moon', 'night', 'serif', 'simple', 'sky', 'solarized', 'white'];
+const CUSTOM_CSS = 'CustomCSS';
+const ALLOW_DESIGNS = ['beige', 'black', 'blood', 'league', 'moon', 'night', 'serif', 'simple', 'sky', 'solarized', 'white', CUSTOM_CSS];
 const ALLOW_MOTIONS = ["default", "cube", "page", "concave", "zoom", "linear", "fade", "none"];
 
 //userSession: ログイン済みの場合ユーザー情報がある。
@@ -126,14 +127,19 @@ router.get('/:name/changeShare', async (req, res, next) => {
     req.session.msg.users = [];
     models.slides.update(obj, slideQuery)
     .then((record) => {
-        let msg = !shared ? "スライドを共有設定に変更しました" : "スライドを非共有設定に変更しました";
-        req.session.msg.users.push(msg);
-        res.redirect(`/users/${user.name}`);
+        let obj = {
+            msg: !shared ? 'スライドを共有設定に変更しました' : 'スライドを非共有設定に変更しました',
+            label: !shared ? 'スライドを共有しない' : 'スライド共有'
+        };
+        res.status(200);
+        res.end(JSON.stringify(obj));
     })
     .catch((err) => {
-        let msg = 'スライドの共有設定変更に失敗しました';
-        req.session.msg.users.push(msg);
-        res.redirect(`/users/${user.name}`);
+        let obj = {
+            msg: 'スライドの共有設定変更に失敗しました'
+        }
+        res.status(500);
+        res.end(JSON.stringify(obj));
     });
 });
 
@@ -195,7 +201,13 @@ router.get('/:name/uploads/*', async(req, res, next) => {
     let accessProcess = await getAccessProcess(sessionUser, requestedUserName);
     
     if(accessProcess) {
-        let f = req.originalUrl.split(requestedUserName)[1];
+        let f = req.originalUrl.split(requestedUserName);
+        if(req.originalUrl.endsWith('css') && f.length > 2){
+            f = f[1] + requestedUserName  + f[2];
+        } else {
+            f = f[1];
+        }
+
         f = f.substr(1);
 
         fs.createReadStream(f).once('open', function() {
@@ -230,11 +242,24 @@ router.post('/:name/design', async(req, res, next) => {
     };
 
     let slide = await models.slides.findOne(query);
-    await slide.update({design: design});
-    await reveal.rebootReveal(slide, await models.processes.findOne(query));
+    let process = await models.processes.findOne(query);
+
+    let updateObj = {
+        design: design,
+        css: null
+    };
+
+    let currentDesign = slide.design || 'NOCSS';
+
+    if(currentDesign != CUSTOM_CSS && design === CUSTOM_CSS) {
+        let cssPath = await reveal.generateCSS(slide, process, sessionUser.name);
+        updateObj.css = cssPath;
+    }
+    await slide.update(updateObj);
+    await reveal.rebootReveal(slide, process);
 
     res.status(200);
-    res.end();
+    res.end(`デザインを${design}に変更しました`);
 });
 
 router.post('/:name/motion', async(req, res, next) => {
@@ -264,7 +289,7 @@ router.post('/:name/motion', async(req, res, next) => {
     await reveal.rebootReveal(slide, await models.processes.findOne(query));
 
     res.status(200);
-    res.end();
+    res.end(`モーションを${motion}に変更しました`);
 });
 
 router.get('/:name/download/md', async function(req, res, next) {
@@ -321,6 +346,69 @@ router.get('/:name/download/pdf', async function(req, res, next) {
     let filename = sessionUser.name + '.md';
 
     fs.createReadStream(mdpath).pipe(markdownpdf()).pipe(res);
+});
+
+/*PDF??*/
+//RevealGoへアクセスした後にリソースとしてcss等のファイルにアクセスしに来る
+router.get('/:name/slide/revealjs/*', async (req, res, next) => {
+    let sessionUser = req.session.user;
+    let requestedUserName = req.params.name;
+
+    //TODO: 本当にアクセス管理をするべきか検討する（アクセス管理が必要な場合現状多数のSQL問い合わせが必要になる)
+    //let accessProcess = true;
+    let accessProcess = await getAccessProcess(sessionUser, requestedUserName);
+
+    if(accessProcess) {
+        /*
+    let query = {
+        /
+        where: {
+            name: requestedUserName
+        }
+    };
+        let user = await models.processes.findOne(query);
+        let process = await models.processes.findOne(user.id);
+        */
+        let reqPath = req.originalUrl;
+        reqPath = reqPath.split(requestedUserName)[1];
+        console.log(reqPath);
+        let url = 'http://127.0.0.1:' + accessProcess.getDataValue('port') + reqPath;
+        request({
+            url: url,
+            method: 'GET'
+        }).pipe(res);
+        return;
+    } else {
+        res.status(404).end();
+    }
+});
+
+//RevealGoへアクセスした後にリソースとしてmarkdownファイルにアクセスしに来る
+router.get('/:name/slide/uploads/*', async(req, res, next) => {
+    let sessionUser = req.session.user;
+    let requestedUserName = req.params.name;
+
+    let accessProcess = await getAccessProcess(sessionUser, requestedUserName);
+    
+    if(accessProcess) {
+        let f = req.originalUrl.split(requestedUserName);
+        if(req.originalUrl.endsWith('css') && f.length > 2){
+            f = f[1] + requestedUserName  + f[2];
+        } else {
+            f = f[1];
+        }
+
+        f = f.split('slide')[1];
+        f = f.substr(1);
+
+
+        fs.createReadStream(f).once('open', function() {
+            this.pipe(res);
+        });
+        return;
+    } else {
+        res.status(404).end();
+    }
 });
 
 module.exports = router;
