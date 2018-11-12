@@ -52,7 +52,18 @@
                         let obj = {
                             input: this.input
                         };
-                        this.$http.post('/editor', obj, function(data, stat, request) {});
+                        let path = '/editor';
+                        <% if(isCSS) { %>
+                            path += '/ccss';
+                        <% } %>
+                        axios.post(path, obj).then((res) => {
+                            if(res.status === 200) {
+                                alertify.success('保存しました');
+                                this.changed = false;
+                            } else {
+                                alertify.error('保存に失敗しました');
+                            }
+                        });
                     },
                     save: function() {
                         this.postInput();

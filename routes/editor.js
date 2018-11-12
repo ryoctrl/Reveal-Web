@@ -46,6 +46,7 @@ router.get('/', async function(req, res, next) {
     let obj = {
         data: markdownString,
         resources: JSON.stringify(resources),
+        isCSS: false,
         name: user.name
     };
     res.render('editor', obj);
@@ -71,8 +72,93 @@ router.post('/', async function(req, res, next) {
 
     let slide = await models.slides.findOne(query);
     let markdownPath = slide.getDataValue('markdown_path');
-    fs.writeFileSync(markdownPath, input);
-    res.status(200);
+    fs.writeFile(markdownPath, input, (err) => {
+        if(err) {
+            res.status(500);
+            res.send(err);
+        }
+        res.status(200);
+        res.send();
+    });
 });
+
+/*カスタムCSS*/
+router.get('/ccss', async function(req, res, next) {
+    let user = req.session.user;
+    if(!user) {
+        res.redirect('/');
+        return;
+    }
+
+    let query = {
+        where: {
+            user_id: user.id
+        }
+    };
+
+    let slide = await models.slides.findOne(query);
+    if(!slide) {
+        res.redirect(`/users/${user.name}`);
+        return;
+    }
+
+    let cssPath = slide.getDataValue('css') || 'NOCSS';
+    if(cssPath === 'NOCSS') {
+        res.status(404);
+        res.redirect(`/users/${user.name}`);
+        return;
+    }
+    let cssString = fs.readFileSync(cssPath).toString();
+
+    //clientのvueオブジェクトに渡す際にテンプレートエンジンでレンダリングしなければならないので色々replace。
+    //レンダリングしなくても直接vueに渡せる手法があるのであればそっちのがいい。
+    //express-vueとかそれっぽい？
+    cssString = cssString.replace(new RegExp('`', 'g'), '\\`');
+    
+
+    let obj = {
+        data: cssString,
+        resources: [],
+        isCSS: true,
+        name: user.name
+    };
+    res.render('editor', obj);
+});
+
+router.post('/ccss', async function(req, res, next) {
+    let user = req.session.user;
+    if(!user) {
+        res.status(403);
+        res.send('user not loggined');
+        return;
+    }
+
+    let input = req.body.input;
+    let username = user.id;
+
+    let query = {
+        where: {
+            user_id: user.id
+        }
+    };
+
+    let slide = await models.slides.findOne(query);
+    let cssPath = slide.css;
+    if(!cssPath) {
+        res.status(404);
+        res.end('css does not exists');
+        return;
+    }
+    fs.writeFile(cssPath, input, (err) => {
+        if(err) {
+            res.status(500);
+            res.send(err);
+            return;
+        }
+        res.status(200);
+        res.send();
+    });
+});
+
 
 module.exports = router;
