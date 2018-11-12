@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     shared: DataTypes.BOOLEAN,
     design: DataTypes.STRING,
     motion: DataTypes.STRING,
+    css: DataTypes.STRING,
   }, {
     underscored: true,
   });
