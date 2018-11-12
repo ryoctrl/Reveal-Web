@@ -4,6 +4,8 @@ body {
     font-weight: 600;
     line-height: 1.5;
     text-align: center;
+    margin: 0;
+    overflow: hidden;
 }
 
 h1 {
@@ -18,8 +20,42 @@ h4 {
     font-size: 2.0em;
 }
 
+header {
+    height: 5vh;
+    background: #cccccc;
+}
+
+#header-contents {
+    width: 80vw;
+    height: 5vh;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+#body-contents {
+    padding-top: 20px;
+    height: 95vh;
+}
+
+#header-logo img {
+    height: 5vh;
+}
+
+#header-info {
+    width: 10vw;
+    user-select: none;
+}
+
+#header-info p {
+    margin: 0;
+    line-height: 5vh;
+}
+
 .wrapper {
     display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 
@@ -109,10 +145,46 @@ iframe {
     }
 
     .button {
-        width: 70vw;
+        width: 80vw;
         height: 5vh;
         line-height: 4vh;
         font-size: 16px;
     }
+}
 
+.header-item {
+    color: black;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.175);
+    padding: 5px;
+/*margin-bottom: 5px */
+}
+
+.header-item a {
+    color: #333;
+}
+
+.header-item:hover {
+    background-color: #eee;
+}
+
+#header-menu {
+    display: none;
+    background: white;
+    width: 10vw;
+    position: absolute;
+    z-index: 1;
+}
+
+#account-menu-btn {
+    cursor: pointer;
+    z-index: 2;
+}
+
+#header-world {
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
 }
