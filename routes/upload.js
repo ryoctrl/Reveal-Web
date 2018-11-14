@@ -88,7 +88,13 @@ router.post('/resources', upload.single('resource'), async(req, res, next) => {
     if(!user) {
         fs.unlink(file.path, (err) => {});
         res.status(403);
-        res.end();
+        res.end('Authentication Error');
+        return;
+    }
+
+    if(!file) {
+        res.status(400);
+        res.end('Bad Request');
         return;
     }
 
