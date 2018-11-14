@@ -78,3 +78,4 @@ typings/
 uploads/*
 config/*
 pm2conf.json
+ecosystem.config.js
