@@ -180,45 +180,28 @@ router.get('/:name/slide', async (req, res, next) => {
 router.get('/:name/revealjs/*', async (req, res, next) => {
     let sessionUser = req.session.user;
     let requestedUserName = req.params.name;
-
-    //TODO: 本当にアクセス管理をするべきか検討する（アクセス管理が必要な場合現状多数のSQL問い合わせが必要になる)
-    //let accessProcess = true;
-    let accessProcess = await getAccessProcess(sessionUser, requestedUserName);
-
-    if(accessProcess) {
-        /*
-let qery = {
+    let query = {
         where: {
             name: requestedUserName
         }
     };
-        let user = await models.processes.findOne(query);
-        let process = await models.processes.findOne(user.id);
-        */
+    let user = await models.users.findOne(query);
 
-        let reqPath = req.originalUrl;
-        reqPath = reqPath.split(requestedUserName)[1];
-        console.log(reqPath);
-        let url = 'http://127.0.0.1:' + accessProcess.getDataValue('port') + reqPath;
-        request({
-            url: url,
-            method: 'GET'
-        }).pipe(res);
-        return;
+    query.where = {
+        user_id: user.id
+    };
+    let process = await models.processes.findOne(query);
+    let reqPath = req.originalUrl;
+    reqPath = reqPath.split(requestedUserName)[1];
+    let url = 'http://127.0.0.1:' + process.port + reqPath;
 
-        /*
-        try {
-        } catch(e) {
-            console.error('an error has occured on /users/:name/revealjs/');
-            console.error(e);
-            res.status(500);
-            res.end();
-            return;
-        }
-        */
-    } else {
-        res.status(404).end();
-    }
+    request({
+        url: url,
+        method: 'GET'
+    }).on('error', function(err) {
+        res.status(500);
+        res.end(err.toString());
+    }).pipe(res);
 });
 
 //RevealGoへアクセスした後にリソースとしてmarkdownファイルにアクセスしに来る
@@ -377,44 +360,44 @@ router.get('/:name/download/pdf', async function(req, res, next) {
     }
 
     let mdpath = slide.getDataValue('markdown_path');
+    try {
+        fs.statSync(mdPath);
+    } catch(e) {
+        res.status(404);
+        res.end(e.toString());
+        return;
+    }
     let filename = sessionUser.name + '.md';
 
     fs.createReadStream(mdpath).pipe(markdownpdf()).pipe(res);
 });
 
-/*PDF??*/
 //RevealGoへアクセスした後にリソースとしてcss等のファイルにアクセスしに来る
 router.get('/:name/slide/revealjs/*', async (req, res, next) => {
     let sessionUser = req.session.user;
     let requestedUserName = req.params.name;
-
-    //TODO: 本当にアクセス管理をするべきか検討する（アクセス管理が必要な場合現状多数のSQL問い合わせが必要になる)
-    //let accessProcess = true;
-    let accessProcess = await getAccessProcess(sessionUser, requestedUserName);
-
-    if(accessProcess) {
-        /*
     let query = {
-        /
         where: {
             name: requestedUserName
         }
     };
-        let user = await models.processes.findOne(query);
-        let process = await models.processes.findOne(user.id);
-        */
-        let reqPath = req.originalUrl;
-        reqPath = reqPath.split(requestedUserName)[1];
-        console.log(reqPath);
-        let url = 'http://127.0.0.1:' + accessProcess.getDataValue('port') + reqPath;
-        request({
-            url: url,
-            method: 'GET'
-        }).pipe(res);
-        return;
-    } else {
-        res.status(404).end();
-    }
+    let user = await models.users.findOne(query);
+
+    query.where = {
+        user_id: user.id
+    };
+    let process = await models.processes.findOne(query);
+    let reqPath = req.originalUrl;
+    reqPath = reqPath.split(requestedUserName)[1];
+    let url = 'http://127.0.0.1:' + process.port + reqPath;
+
+    request({
+        url: url,
+        method: 'GET'
+    }).on('error', function(err) {
+        res.status(500);
+        res.end(err.toString());
+    }).pipe(res);
 });
 
 //RevealGoへアクセスした後にリソースとしてmarkdownファイルにアクセスしに来る
@@ -445,7 +428,7 @@ router.get('/:name/slide/uploads/*', async(req, res, next) => {
 
 
         fs.createReadStream(f).on('error', (e) => {
-            res.status(404);
+            res.status(500);
             res.end(e.toString());
         }).once('open', function() {
             this.pipe(res);
