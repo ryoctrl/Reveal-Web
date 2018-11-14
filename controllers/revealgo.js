@@ -1,4 +1,5 @@
 const execSync = require('child_process').execSync;
+const spawn = require('child_process').spawn;
 const exec = require('child_process').exec;
 const util = require('util');
 const exe = util.promisify(require('child_process').exec);
@@ -7,6 +8,17 @@ const models = require('../models');
 const fs = require('fs');
 
 module.exports.reveal = {
+    executeRevealProcess: async function(options) {
+        if(!options) return false;
+        try {
+            spawn('revealgo', options);
+        } catch(e) {
+            console.error('an error has occured where executing revealgo command');
+            console.error(e.toString());
+            return false;
+        }
+        return true;
+    },
     runAsNewProcess: async function(slide, cb) {
         let max = await models.processes.max('port');
         max = Number.isNaN(max) ? defaultPort : max;
@@ -16,15 +28,8 @@ module.exports.reveal = {
         }
         
         let cmd = this.generateExecCommand(slide, {port: max});
-        let {err, stdout, stderr} = await exec(cmd);
-        if(err) {
-            console.error('an error occured where controllers/revealgo.js/runIfNeeded');
-            console.error(cmd);
-            console.error(err);
-            return;
-        }
-
-
+        let success = this.executeRevealProcess(cmd);
+        if(!success) return;
 
         const processObj = {
             user_id: slide.user_id || slide.getDataValue('user_id'),
@@ -37,32 +42,10 @@ module.exports.reveal = {
     },
     runIfNeeded: async function(slide, process) {
         let idlePort = await this.checkPort(process.port || process.getDataValue('port'));
-
         if(!idlePort) return;
 
-        const cmd = this.generateExecCommand(slide, process);
-
-        let { stdout, stderr } = await exe(cmd, {shell: true});
-
-        if(stderr) {
-            console.error('an error has occured where controllers/revealgo.js/runifNeeded');
-        }
-
-        /*
-        exec(cmd, (err, stdout, stderr) => {
-            if(err) {
-                console.error('an error occured where controllers/revealgo.js/runIfNeeded');
-                console.error(cmd);
-                console.error(err);
-            }
-
-            if(stderr) {
-                console.error('an error occured where controllers/revealgo.js/runIfNeeded');
-                console.error(cmd);
-                console.error('stderr');
-            }
-        });
-        */
+        let cmd = this.generateExecCommand(slide, process);
+        this.executeRevealProcess(cmd);
     },
     checkPort: async function(port) {
         if(!port) return false;
@@ -79,10 +62,7 @@ module.exports.reveal = {
         await this.killProcess(port);
         
         let cmd = this.generateExecCommand(slide, process);
-        if(!cmd) return;
-        exec(cmd, (err, stdout, stderr) => {
-            if(err) console.log(err);
-        });
+        this.executeRevealProcess(cmd);
     },
     generateExecCommand: function(slide, process) {
         let design = slide.design || slide.getDataValue('design');
@@ -92,14 +72,21 @@ module.exports.reveal = {
         let motion = slide.motion || slide.getDataValue('motion');
         let path = slide.markdown_path || slide.getDataValue('markdown_path');
         let port = process.port || process.getDataValue('port');
-        if(!design || !motion || !path || !port) return false;
+        if(!design || !motion || !path || !port) {
+            console.log('returning false : ' + design + ", " + motion + "," + path + ", " + port);
+            return false;
+        }
 
-        let cmd = "revealgo";
-        cmd += ` -p ${port}`;
-        cmd += ` --theme ${design}`;
-        cmd += ` --transition ${motion}`;
-        cmd += ` ${path}`;
-        return cmd;
+        let options = [];
+        options.push('-p');
+        options.push(port);
+        options.push('--theme');
+        options.push(design);
+        options.push('--transition');
+        options.push(motion);
+        options.push(path);
+
+        return options;
     },
     killProcess: async function(port) {
         const {stdout, stderr} = await exe(`lsof -i:${port}`, {shell: true}).catch((err) => {
