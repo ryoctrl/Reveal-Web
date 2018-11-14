@@ -3,8 +3,6 @@ function displayUploader() {
     alertify.prompt('画像を挿入',
         'アップロードする画像を選択してください',
     ).setContent(`
-        <input id="resource" type="file" name="resource">
-        <button class="button" onClick="postResource()" value="upload">Upload</button>
         <div id="res-header" >
         <div class="res-col">サムネイル</div>
         <div class="res-col">ファイル名</div>
@@ -13,6 +11,8 @@ function displayUploader() {
         </div>
         <div id="res-contents">
         </div>
+        <input id="resource" type="file" name="resource">
+        <button class="button" onClick="postResource()" value="upload">Upload</button>
     `).setHeader('画像の挿入').show();
 
     let contents = document.getElementById('res-contents');
@@ -33,7 +33,7 @@ function displayUploader() {
                 colContent.innerHTML = '<img class="del-button" id="'+res['path']+'" src="/del-icon.png"></img>';
                 colContent.addEventListener('click', deleteResource);
             } else {
-                colContent.innerHTML = '<p style="text-align: center;">' + res[col] + '</p>';
+                colContent.innerHTML = '<p style="text-align: center; word-wrap: break-word;">' + res[col] + '</p>';
             }
             content.appendChild(colContent);
         }
@@ -78,7 +78,9 @@ function postResource() {
             alertify.success('アップロードに成功しました');
         })
         .catch((err) => {
-            alertify.error('アップロードに失敗しました:'+err);
+            let msg = `アップロードに失敗しました.
+${err}`;
+            alertify.error(msg);
         });
 }
 

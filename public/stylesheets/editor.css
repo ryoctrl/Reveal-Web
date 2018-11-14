@@ -103,7 +103,7 @@ iframe {
 }
 
 #res-contents {
-    max-height: 60vh;
+    max-height: 55vh;
     overflow: scroll;
 }
 
