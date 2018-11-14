@@ -159,10 +159,16 @@ router.get('/:name/slide', async (req, res, next) => {
         console.log('returning');
         let port = accessProcess.getDataValue('port');
         let url = 'http://127.0.0.1:' + port;
-        request({
+        let reqOpt = {
             url: url,
             method: 'GET'
-        }).pipe(res);
+        };
+        let req  = request(reqOpt);
+        req.on('error', (e) => {
+            res.status(500);
+            res.end(e.toString());
+        });
+        req.pipe(res);
         return;
     } else {
         if(!req.session.msg) req.session.msg = {};
@@ -234,23 +240,19 @@ router.get('/:name/uploads/*', async(req, res, next) => {
 
         f = f.substr(1);
 
-
-        fs.createReadStream(f).once('open', function() {
-            this.pipe(res);
-        });
-        return;
-        /*
-        try{
-        }catch(e) {
-            console.error('an error has occured on /users/:name/uploads/');
-            console.error(e);
-            res.status(500);
-            res.end();
+        try {
+            fs.statSync(f);
+        } catch(e) {
+            res.status(404);
+            res.end(e.toString());
             return;
         }
-        */
+
+        fs.createReadStream(f).once('open', function() {
+                this.pipe(res);
+        });
     } else {
-        res.status(404).end();
+        res.status(403).end();
     }
 });
 
@@ -435,8 +437,19 @@ router.get('/:name/slide/uploads/*', async(req, res, next) => {
         f = f.split('slide')[1];
         f = f.substr(1);
 
+        try {
+            fs.statSync(f);
+        } catch(e) {
+            res.status(404);
+            res.end(e.toString());
+            return;
+        }
 
-        fs.createReadStream(f).once('open', function() {
+
+        fs.createReadStream(f).on('error', (e) => {
+            res.status(404);
+            res.end(e.toString());
+        }).once('open', function() {
             this.pipe(res);
         });
         return;

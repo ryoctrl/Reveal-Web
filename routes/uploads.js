@@ -11,6 +11,13 @@ router.get('/*', async(req, res, next) => {
     }
 
     let f = req.originalUrl.substr(1);
+    try {
+        fs.statSync(f);
+    } catch(e) {
+        res.status(404);
+        res.end(e.toString());
+        return;
+    }
     fs.createReadStream(f).once('open', function() {
         this.pipe(res);
     });
