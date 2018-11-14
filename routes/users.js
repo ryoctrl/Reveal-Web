@@ -92,8 +92,7 @@ router.get('/:name', async (req, res, next) => {
         obj.selectingMotion = slide.motion;
         await reveal.runIfNeeded(slide, process);
     }
-    console.log(obj.designs);
-    console.log(obj.selectingDesign);
+
     res.status(200).render('users', obj);
     req.session.msg.users = [];
     return;
@@ -156,7 +155,6 @@ router.get('/:name/slide', async (req, res, next) => {
     console.log('ok access');
 
     if(accessProcess) {
-        console.log('returning');
         let port = accessProcess.getDataValue('port');
         let url = 'http://127.0.0.1:' + port;
         let reqOpt = {
