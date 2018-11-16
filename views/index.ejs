@@ -3,35 +3,56 @@
   <head>
     <title>RevealWeb</title>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE-edge">
-    <link rel="stylesheet" href="/css/bootstrap.min.css" />
     <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/index.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!--AlertifyJS-->
-    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/alertify.min.js" defer></script>
+    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/alertify.min.js" ></script>
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/css/alertify.min.css"/>
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/css/themes/default.min.css"/>
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/css/themes/semantic.min.css"/>
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/css/themes/bootstrap.min.css"/>
     <!--AlertifyJS-->
-    <script>
-    </script>
+    <script src="js/alerts.js"></script>
+    <script src="js/index.js"></script>
   </head>
   <body>
       <div class="contents">
           <h1>Reveal Web</h1>
           <h3>THE MARKDOWN PRESENTATION WEB SERVICE</h3>
-          <p>RevealWebはMarkdownファイルをすぐにWebスライドとして使えるようにするWebサービスです</p>
 
           <div class="buttons"> 
-                <form action="/login">
-                    <input class="button" type="submit" value="Login">
+                <form>
+                    <input id="login-button" class="button" value="Login" readonly>
                 </form>
 
-                <form action="/signup">
-                    <input class="button" type="submit" value="Signup">
+                <form>
+                    <input id="signup-button" class="button" value="Signup" readonly>
                 </form>
           </div>
       </div>
+      <template id="template">
+          <form id="loginForm">
+              <fieldset>
+                  <label> Username </labeL>
+                  <input id="username-input" type="text" name="username"/>
+                  <label> Password </label>
+                  <input id="password-input" type="password" name="password"/>
+                  <input type="button" value="Login" onClick="login()"/>
+              </fieldset>
+          </form>
+          <form id="signupForm" action="/signup" method="POST">
+              <fieldset>
+                  <label> Username </labeL>
+                  <input type="text" name="username"/>
+                  <label> Password </label>
+                  <input type="password" name="password"/>
+                  <input type="submit" value="Signup" />
+              </fieldset>
+          </form>
+
+      </template>
   </body>
 </html>

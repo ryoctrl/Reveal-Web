@@ -1,0 +1,18 @@
+@media screen and (max-width: 767px) { 
+    h1 {
+        font-size: 3em;
+    }
+
+    h3 {
+        font-size: 1.2em;
+    }
+    .buttons {
+        flex-direction: column;
+        width: 50%;
+    }
+
+
+    .contents {
+        margin: auto;
+    }
+}
