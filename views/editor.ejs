@@ -129,9 +129,7 @@
       </header>
       
       <div id="contents">
-          <div id="inputs">
-              <textarea id="input" v-model="input" debounce='100'></textarea>
-          </div>
+          <textarea id="input" v-model="input" debounce="100"></textarea>
           <div id="previews">
                 <iframe src="https://revealweb.mosin.jp/users/<%=name%>/slide"></iframe>
                 <div id="output" style="display: <%if(isCSS){%>none<%} else { %>block<% } %> " v-html="input | marked"></div>
