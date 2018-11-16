@@ -28,26 +28,27 @@ router.post('/', async (req, res, next) => {
     };
 
     let record = await models.users.findOne(query).catch((err) => {
-        console.log(err);
-        req.session.msg.login = ["なんらかのエラーが発生しました。"];
-        res.redirect('/login');
+        res.status(403);
+        res.end('ユーザー名またはパスワードが違います');
         return;
     });
 
     if(!record) {
-        req.session.msg.login = ["ユーザー名またはパスワードが違います."];
-        res.redirect('/login');
+        res.status(403);
+        res.end('ユーザー名またはパスワードが違います');
         return;
     }
 
     bcrypt.compare(password, record.getDataValue('password_hash'), (err, result) => {
         if(err || !result) {
-            req.session.msg.login = ["ユーザー名またはパスワードが違います."];
+            res.status(403);
+            res.end('ユーザー名またはパスワードが違います');
             return;
         }
 
         req.session.user = record;
-        res.redirect(`/users/${record.getDataValue('name')}`);
+        res.status(200);
+        res.end();
         return;
     });
 });
