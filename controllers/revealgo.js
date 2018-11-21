@@ -1,11 +1,8 @@
-const execSync = require('child_process').execSync;
-const spawn = require('child_process').spawn;
-const exec = require('child_process').exec;
-const util = require('util');
-const exe = util.promisify(require('child_process').exec);
-const defaultPort = 9500;
-const models = require('../models');
 const fs = require('fs');
+const util = require('util');
+const spawn = require('child_process').spawn;
+const exe = util.promisify(require('child_process').exec);
+const models = require('../models');
 
 module.exports.reveal = {
     executeRevealProcess: async function(options) {
@@ -20,6 +17,7 @@ module.exports.reveal = {
         return true;
     },
     runAsNewProcess: async function(slide, cb) {
+        let defaultPort = process.env.PORT;
         let max = await models.processes.max('port');
         max = Number.isNaN(max) ? defaultPort : max;
         while(true) {
@@ -99,9 +97,7 @@ module.exports.reveal = {
 
         if(lines.length < 2) return;
         let pid = lines[1].split(' ')[1];
-        exec(`kill ${pid}`, (err, stdout, stderr) => {
-            console.log('killed');
-        });
+        spawn('kill', [pid]);
     },
     generateCSS: async function(slide, process, username) {
         let cssPath = `uploads/${username}-${slide.getDataValue('design')}.css`;
