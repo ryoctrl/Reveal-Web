@@ -67,10 +67,14 @@ router.get('/:name', async (req, res, next) => {
         return;
     }
 
+    let sessionMessages = req.session.msg || [];
+    let messages = [];
+    while(sessionMessages.length > 0) messages.push(sessionMessages.shift());
+
     let obj = {
         username: user.name,
         slide: false,
-        msg: req.session.msg,
+        msg: messages,
         selectingDesign: "null",
         selectingMotion: "null",
         designs: ALLOW_DESIGNS,
@@ -93,8 +97,8 @@ router.get('/:name', async (req, res, next) => {
         await reveal.runIfNeeded(slide, process);
     }
 
+
     res.status(200).render('users', obj);
-    req.session.msg.users = [];
     return;
 });
 

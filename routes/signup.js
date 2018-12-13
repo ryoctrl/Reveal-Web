@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const models = require('../models');
 const mailer = require('../utils/mailer');
+const userController = require('../controllers/userController');
 
 router.get('/', (req, res, next) => {
     let user = req.session.user;
@@ -60,6 +61,7 @@ router.post('/', async (req, res, next) => {
         res.redirect('/signup');
         return;
     }
+
 
     bcrypt.hash(password, 10, async (err, hash) => {
         const userObj = {
