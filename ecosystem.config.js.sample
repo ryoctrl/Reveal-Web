@@ -14,6 +14,8 @@ module.exports = {
         'MAIL_PORT' : 25,
         'MAIL_DOMAIN': 'xxx.com',
         'MAIL_FROM' : 'xyz@xxx.com'
+        'TWITTER_CONSUMER_KEY': 'xxxxxxxxxxxxxxxxxxxxx',
+        'TWITTER_CONSUMER_SECRET': 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
       },
       log_date_format : 'YYYY-MM-DD HH:mm:ss Z',
     },
