@@ -34,15 +34,20 @@
           </div>
       </div>
       <template id="template">
-          <form id="loginForm">
+          <div id="loginForm">
+          <a href="/auth/twitter">
+              <img class="social-logo" src="/images/twitter_login_button.png"></img>
+          </a>
+          <form>
               <fieldset>
-                  <label> Username </labeL>
+                  <label> Username </label>
                   <input id="username-input" type="text" name="username"/>
                   <label> Password </label>
                   <input id="password-input" type="password" name="password"/>
                   <input type="button" value="Login" onClick="login()"/>
               </fieldset>
           </form>
+          </div>
           <form id="signupForm" action="/signup" method="POST">
               <fieldset>
                   <label> Username </labeL>

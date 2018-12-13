@@ -221,6 +221,11 @@ section.blue .carbon-poweredby {
   border-color: #31708f;
 }
 
+.social-logo {
+    max-width: 50%;
+    max-height: 100px;
+}
+
 @media screen and (max-width: 767px) {
     body {
         overflow: initial;
