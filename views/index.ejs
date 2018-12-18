@@ -17,6 +17,15 @@
     <!--AlertifyJS-->
     <script src="js/alerts.js"></script>
     <script src="js/index.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            let messages = <%- messages %>;
+            for(let message of messages) {
+                alert(message.message, message.isError);
+            }
+        });
+
+    </script>
   </head>
   <body>
       <div class="contents">
