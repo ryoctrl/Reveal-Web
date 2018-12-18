@@ -32,6 +32,14 @@ function signup() {
     });
 }
 
+function alert(message, isError) {
+    if(isError) {
+        alertify.error(message);
+    } else {
+        alertify.success(message);
+    }
+}
+
 function post(act, succeeded) {
     let username = $('#username-input').val();
     let password = $('#password-input').val();

@@ -176,6 +176,9 @@
                 <% } else { %>
                 <p> Markdownファイルがアップロードされていません。</p>
                 <p> Markdownファイルをアップロードするとスライドの閲覧・編集ができるようになります</p>
+                <form method="POST" action="/users/<%=username%>/newmd">
+                    <input id="newbtn" class="button" type="submit" value="GenerateMarkdown">
+                </form>
                 <% } %>
                 <button id="filebtn" class="button" onClick="selectFileClicked();">ファイルを選択</button>
 

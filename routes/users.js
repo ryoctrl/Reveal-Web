@@ -4,6 +4,7 @@ const markdownpdf = require('markdown-pdf');
 const router = express.Router();
 const request = require('request');
 const reveal = require('../controllers/revealgo.js').reveal;
+const mc = require('../controllers/markdownController');
 const models = require('../models');
 const CUSTOM_CSS = 'CustomCSS';
 const ALLOW_DESIGNS = ['beige', 'black', 'blood', 'league', 'moon', 'night', 'serif', 'simple', 'sky', 'solarized', 'white', CUSTOM_CSS];
@@ -441,6 +442,35 @@ router.get('/:name/slide/uploads/*', async(req, res, next) => {
     } else {
         res.status(404).end();
     }
+});
+
+router.post('/:name/newmd', async (req, res, next) => {
+    let sessionUser = req.session.user;
+    let requestedUserName = req.params.name;
+    console.log(sessionUser);
+
+    if(!sessionUser) {
+        res.redirect('/');
+        return;
+    }
+
+    if(sessionUser.name != requestedUserName) {
+        res.redirect('/');
+        return;
+    }
+
+    let result = await mc.createNewSlide(sessionUser.id);
+
+    if(result.err) {
+        res.status(500);
+        res.end();
+        return;
+    }
+
+    reveal.runAsNewProcess(result.record, () => {
+        res.redirect('');
+        return;
+    });
 });
 
 module.exports = router;
