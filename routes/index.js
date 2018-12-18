@@ -9,7 +9,13 @@ router.get('/', function(req, res, next) {
         let message = sessionMessages.shift();
         messages.push(message);
     }     
-    res.render('index', { messages: JSON.stringify(messages) });
+    let obj = {
+        messages: JSON.stringify(messages)
+    };
+
+    if(req.session.user)  obj.username = req.session.user.name;
+    else obj.username = false;
+    res.render('index', obj);
     return;
 });
 

@@ -28,6 +28,26 @@
     </script>
   </head>
   <body>
+      <header>
+          <div id="header-contents">
+              <div id="header-logo">
+                  <a href="/">
+                      <img src="/favicon.ico"></img>
+                  </a>
+              </div>
+              <div id="header-info">
+                  <% if(username) { %>
+                  <p id="account-menu-btn"><%= username %> ▽</p>
+                  <div id="header-menu">
+                      <div class="header-item">
+                          <a href="/logout">ログアウト</a>
+                      </div>
+                  </div>
+                  <% } %>
+              </div>
+              <div id="header-world"></div>
+          </div>
+      </header>
       <div class="contents">
           <h1>Reveal Web</h1>
           <h3>THE MARKDOWN PRESENTATION WEB SERVICE</h3>
