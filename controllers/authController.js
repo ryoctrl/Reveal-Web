@@ -29,29 +29,38 @@ module.exports = {
         this.app.post('/login', async function(req, res, next) {
             await passport.authenticate('local', async function(err, user, info) {
                 if(err) { 
-                    console.log('authenticate error!');
-                    sc.addError(req, info.message);
-                    return res.redirect('/');
+                    let obj = {
+                        message: info.message
+                    };
+                    res.status(500);
+                    res.end(JSON.stringify(obj));
+                    return;
                 }
 
                 if(!user) {
-                    console.log('authenticate error!!')
-                    sc.addError(req, info.message);
-                    return res.redirect('/');
+                    let obj = {
+                        message: info.message
+                    };
+                    res.status(500);
+                    res.end(JSON.stringify(obj));
+                    return;
                 }
-                console.log('info xx');
-                console.log(info);
-                console.log('info yy');
+
                 await req.logIn(user, async function(err) {
+                    console.log('login');
                     if(err) {
-                        console.log('authenticate error!!!');
-                        sc.addError(req, err.toString());
-                        return res.redirect('/');
+                        let obj = {
+                            message: info.message
+                        };
+                        res.status(500);
+                        res.end(JSON.stringify(obj));
+                        return;
                     }
                     let uid = req.session.passport.user;
                     req.session.user = await uc.findOneById(uid);
-                    console.log('redirect to ' +  '/users/' + user.name);
-                    return res.redirect('/users/' + user.name);
+                    res.status(200);
+                    res.end();
+                    return;
                 });
             })(req, res, null);
         });

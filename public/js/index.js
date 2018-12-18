@@ -21,7 +21,11 @@ function openSignupFields() {
 function login() {
     let username = $('#username-input').val();
     post('login', function(res) {
-        location.href = '/users/' + username;
+        if(res.status === 200) {
+            location.href = '/users/' + username;
+        } else {
+            console.log(res);
+        }
     });
 }
 
@@ -49,6 +53,6 @@ function post(act, succeeded) {
     }).then((res) => {
         succeeded(res);
     }).catch((err) => {
-        alertify.error(err.response.data);
+        alertify.error(err.response.data.message);
     });
 }
