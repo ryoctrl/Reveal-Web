@@ -7,6 +7,14 @@ const checkSessionActivatedAndGenerateMessagesIfNeeded = req => {
 };
 
 module.exports = {
+    dequeueAllMessages: req => {
+        if(!req.session) return [];
+
+        let sessionMessages = req.session.messages || [];
+        let messages = [];
+        while(sessionMessages.length > 0) messages.push(sessionMessages.shift());
+        return messages;
+    },
     addMessage: (req, obj) => {
         checkSessionActivatedAndGenerateMessagesIfNeeded(req);
         if(!obj.hasOwnProperty('message')) {

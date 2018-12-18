@@ -5,6 +5,7 @@ const router = express.Router();
 const request = require('request');
 const reveal = require('../controllers/revealgo.js').reveal;
 const mc = require('../controllers/markdownController');
+const sc = require('../controllers/sessionController');
 const models = require('../models');
 const CUSTOM_CSS = 'CustomCSS';
 const ALLOW_DESIGNS = ['beige', 'black', 'blood', 'league', 'moon', 'night', 'serif', 'simple', 'sky', 'solarized', 'white', CUSTOM_CSS];
@@ -68,14 +69,10 @@ router.get('/:name', async (req, res, next) => {
         return;
     }
 
-    let sessionMessages = req.session.msg || [];
-    let messages = [];
-    while(sessionMessages.length > 0) messages.push(sessionMessages.shift());
-
     let obj = {
         username: user.name,
         slide: false,
-        msg: messages,
+        msg: sc.dequeueAllMessages(req),
         selectingDesign: "null",
         selectingMotion: "null",
         designs: ALLOW_DESIGNS,
@@ -129,7 +126,6 @@ router.get('/:name/changeShare', async (req, res, next) => {
     };
 
     slide.setDataValue('shared',!shared); 
-    req.session.msg.users = [];
     models.slides.update(obj, slideQuery)
     .then((record) => {
         let obj = {
@@ -171,8 +167,7 @@ router.get('/:name/slide', async (req, res, next) => {
         req.pipe(res);
         return;
     } else {
-        if(!req.session.msg) req.session.msg = {};
-        req.session.msg.login = ['スライドにアクセスすることができませんでした。'];
+        sc.addError(req, 'スライドにアクセスできませんでした');
         redirectToLogin(res);
         return;
     }
