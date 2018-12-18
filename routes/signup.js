@@ -2,10 +2,15 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const models = require('../models');
-const mailer = require('../utils/mailer');
+const confirmer = require('../controllers/confirmController');
 const userController = require('../controllers/userController');
+const sessionController = require('../controllers/sessionController');
 
 router.get('/', (req, res, next) => {
+    res.redirect('/');
+    return;
+
+    /*
     let user = req.session.user;
     if(user) {
         res.redirect(`/users/${user.name}`);
@@ -16,23 +21,28 @@ router.get('/', (req, res, next) => {
         msg: req.session.msg
     };
     res.render('signup', obj);
+    */
 });
 
 router.post('/', async (req, res, next) => {
     //TODO: メール機能を正常に動作させる。
-    if(!req.session.msg) req.session.msg = {};
+    if(!req.session.messages) req.session.messages = [];
     const name = req.body.username;
-    let password = req.body.password;
-    //const email = req.body.email || "NoMail";
-    if(!name || !password) {
-    //if(!name || !password || !email) {
-        //req.session.msg.signup = ["ユーザー名, パスワード, メールアドレス全て入力してください"];
-        req.session.msg.signup = ['ユーザー名, パスワード共に入力してください'];
-        res.redirect('/signup');
+    const password = req.body.password
+    const passwordConf = req.body.password_conf;
+    const email = req.body.email || "NoMail";
+    if(!name || !email || !password || !passwordConf) {
+        sessionController.addError(req, '全ての項目を入力してください');
+        res.redirect('/');
         return;
     }
 
-    /*
+    if(password != passwordConf) {
+        sessionController.addError(req, '入力されたパスワードと確認用パスワードが異なります');
+        res.redirect('/');
+        return;
+    }
+    
     let query = {
         where: {
             email: email
@@ -42,11 +52,10 @@ router.post('/', async (req, res, next) => {
     let record = await models.users.findOne(query);
 
     if(record) {
-        req.session.msg.signup = ["既に登録されているユーザー名またはメールアドレスです"];
-        res.redirect('/signup');
+        sessionController.addError(req, '既に登録されているメールアドレスです');
+        res.redirect('/');
         return;
     }
-    */
 
     query = {
         where: {
@@ -57,44 +66,44 @@ router.post('/', async (req, res, next) => {
     record = await models.users.findOne(query);
 
     if(record) {
-        req.session.msg.signup = ["既に登録されているユーザー名またはメールアドレスです"];
-        res.redirect('/signup');
+        sessionController.addError(req, '既に登録されているユーザー名です');
+        res.redirect('/');
         return;
     }
-
 
     bcrypt.hash(password, 10, async (err, hash) => {
         const userObj = {
             name: name,
-            email: "NoMail",
-            password_hash: hash
+            email: email,
+            password_hash: hash,
+            provider: 'original',
+            activate_hash: confirmer.generateConfirmSeed(name, new Date()),
+            activated: false
         };
+        console.log(userObj);
 
         let record = await models.users.create(userObj).catch((err) => {
             console.log(err);
-            req.session.msg.signup = ["なんらかのエラーが発生しました。もう一度登録を行ってください"];
-            res.redirect('/signup');
+            sessionController.addError(req, 'なんらかのエラーが発生しました.もう一度登録を行ってください');
+            res.redirect('/');
             return;
         });
 
         if(!record) {
-            req.session.msg.signup = ["なんらかのエラーが発生しました。もう一度登録を行ってください"];
-            res.redirect('/signup');
+            sessionController.addError(req, 'なんらかのエラーが発生しました.もう一度登録を行ってください');
+            res.redirect('/');
             return;
         }
 
-        req.session.msg.login = [];
-        req.session.msg.login.push('登録したアカウント情報でログインしてください');
-        res.redirect('login');
 
-        /*
-        mailer.sendConfirm(email, function (err, result) {
-            req.session.msg.login = [];
-            if(err) req.session.msg.login.push('確認メールの送信時に何らかのエラーが発生しました。');
-            else req.session.msg.login.push('確認メールを送信しました。');
-            res.redirect('login');
+        confirmer.sendConfirm(record, function (err, result) {
+            if(err) {
+                sessionController.addError(req, '確認メール送信に失敗しました.管理者に問い合わせてください');
+            } else {
+                sessionController.addSuccess(req, '確認メールを送信しました');
+            }            
+            res.redirect('/');
         });
-        */
     });
 });
 

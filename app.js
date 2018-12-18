@@ -8,13 +8,12 @@ const ac = require('./controllers/authController');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var loginRouter = require('./routes/login');
 var signupRouter = require('./routes/signup');
 var uploadRouter = require('./routes/upload');
 var uploadsRouter = require('./routes/uploads');
 var editorRouter = require('./routes/editor');
 var logoutRouter = require('./routes/logout');
-var authRouter = require('./routes/auth');
+var activateRouter = require('./routes/activate');
 
 var app = express();
 
@@ -37,13 +36,12 @@ ac.initialize(app);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/login', loginRouter);
 app.use('/signup', signupRouter);
 app.use('/upload', uploadRouter);
 app.use('/uploads', uploadsRouter);
 app.use('/editor', editorRouter);
 app.use('/logout', logoutRouter);
-app.use('/auth', authRouter);
+app.use('/activate', activateRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

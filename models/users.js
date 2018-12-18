@@ -5,6 +5,8 @@ module.exports = (sequelize, DataTypes) => {
     email: DataTypes.STRING,
     password_hash: DataTypes.STRING,
     provider: DataTypes.STRING,
+    activate_hash: DataTypes.STRING,
+    activated: DataTypes.BOOLEAN
   }, {
     underscored: true,
   });

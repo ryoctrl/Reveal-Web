@@ -48,7 +48,7 @@ const getAccessProcess = async (userSession, requestedUserName) => {
 }
 
 const redirectToLogin = res => {
-    res.redirect('/login');
+    res.redirect('/');
 }
 
 router.get('/', (req, res, next) => { res.redirect('/login'); });
@@ -59,7 +59,7 @@ router.get('/:name', async (req, res, next) => {
     let user = req.session.user;
     let requestName = req.params.name;
     if(!user) {
-        res.redirect('/login');
+        res.redirect('/');
         return;
     }
 
@@ -97,7 +97,6 @@ router.get('/:name', async (req, res, next) => {
         obj.selectingMotion = slide.motion;
         await reveal.runIfNeeded(slide, process);
     }
-
 
     res.status(200).render('users', obj);
     return;

@@ -44,28 +44,40 @@
       </div>
       <template id="template">
           <div id="loginForm">
-          <a href="/auth/twitter">
-              <img class="social-logo" src="/images/twitter_login_button.png"></img>
-          </a>
-          <form>
-              <fieldset>
-                  <label> Username </label>
-                  <input id="username-input" type="text" name="username"/>
-                  <label> Password </label>
-                  <input id="password-input" type="password" name="password"/>
-                  <input type="button" value="Login" onClick="login()"/>
-              </fieldset>
-          </form>
+              <a href="/auth/twitter" tabindex="4">
+                <img class="social-logo" src="/images/twitter_login_button.png"></img>
+              </a>
+              <p>又はRevealWebのアカウントでログイン</p>
+              <form>
+                  <fieldset>
+                      <label> Username </label>
+                      <input id="username-input" tabindex="1" type="text" name="username"/>
+                      <label> Password </label>
+                      <input id="password-input" tabindex="2" type="password" name="password"/>
+                      <input type="button" tabindex="3" value="Login" onClick="login()"/>
+                  </fieldset>
+              </form>
           </div>
-          <form id="signupForm" action="/signup" method="POST">
-              <fieldset>
-                  <label> Username </labeL>
-                  <input type="text" name="username"/>
-                  <label> Password </label>
-                  <input type="password" name="password"/>
-                  <input type="submit" value="Signup" />
-              </fieldset>
-          </form>
+          <div id="signupForm">
+              <p>ソーシャルアカウントでサインアップ</p>
+              <a href="/auth/twitter">
+                  <img class="social-logo" src="/images/twitter_login_button.png"></img>
+              </a>
+              <p>又はRevealWebのアカウントを作成</p>
+              <form action="/signup" method="POST">
+                  <fieldset>
+                      <label> Username </labeL>
+                      <input type="text" tabindex="1" name="username"/>
+                      <label> MailAddress</label>
+                      <input type="text" tabindex="2" name="email"/>
+                      <label> Password </label>
+                      <input type="password" tabindex="3" name="password"/>
+                      <label> Password(Confirm) </label>
+                      <input type="password" tabindex="4" name="password_conf"/>
+                      <input type="submit" tabindex="5" value="Signup" />
+                  </fieldset>
+              </form>
+          </div>
 
       </template>
   </body>
