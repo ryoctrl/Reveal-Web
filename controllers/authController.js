@@ -47,7 +47,6 @@ module.exports = {
                 }
 
                 await req.logIn(user, async function(err) {
-                    console.log('login');
                     if(err) {
                         let obj = {
                             message: info.message

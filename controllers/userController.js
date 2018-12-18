@@ -114,13 +114,10 @@ module.exports = {
         //it needs function of resend email and reauthenticate flag.
         if(now.diff(created, 'hours') > 2) {
             await models.users.destroy(query);
-
             return {
                 err: true,
                 message: '認証の有効期限が切れています。アカウントを登録し直してください.'
             }
-
-
         }
 
         let obj = {

@@ -154,9 +154,7 @@ router.get('/:name/slide', async (req, res, next) => {
     let sessionUser = req.session.user;
     let requestedUserName = req.params.name;
 
-    console.log('checkAccessProcess');
     let accessProcess = await getAccessProcess(sessionUser, requestedUserName); 
-    console.log('ok access');
 
     if(accessProcess) {
         let port = accessProcess.getDataValue('port');
@@ -336,7 +334,6 @@ router.get('/:name/download/md', async function(req, res, next) {
 
     let mdpath = slide.getDataValue('markdown_path');
     let filename = sessionUser.name + '.md';
-    console.log(mdpath + " : " + filename);
 
     res.download(mdpath, filename);
 
@@ -446,7 +443,6 @@ router.get('/:name/slide/uploads/*', async(req, res, next) => {
 router.post('/:name/newmd', async (req, res, next) => {
     let sessionUser = req.session.user;
     let requestedUserName = req.params.name;
-    console.log(sessionUser);
 
     if(!sessionUser) {
         res.redirect('/');
