@@ -458,7 +458,7 @@ router.post('/:name/newmd', async (req, res, next) => {
     }
 
     reveal.runAsNewProcess(result.record, () => {
-        res.redirect('');
+        res.redirect(`/users/${requestedUserName}`);
         return;
     });
 });
