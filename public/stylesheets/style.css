@@ -43,7 +43,7 @@ header {
 }
 
 #header-info {
-    width: 10vw;
+    width: 16vw;
     user-select: none;
 }
 
@@ -146,7 +146,7 @@ iframe {
 #header-menu {
     display: none;
     background: white;
-    width: 10vw;
+    width: 16vw;
     position: absolute;
     z-index: 1;
 }

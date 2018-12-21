@@ -29,17 +29,6 @@ function openPDF(user) {
 
 window.addEventListener('load', function() {                
     document.getElementById('body-contents').addEventListener('click', othersClick);
-    document.getElementsByTagName('iframe')[0].contentDocument.body.addEventListener('click', othersClick);
-    //document.getElementById('header-contents').addEventListener('click', othersClick);
-    let accountMenuButton = document.getElementById('account-menu-btn');
-    accountMenuButton.addEventListener('click', function() {
-            let menu = document.getElementById('header-menu');
-            let menuDisplay = menu.style.display;
-            if(menuDisplay === 'none') {
-                menuDisplay = 'block';
-            } else {
-                menuDisplay = 'none';
-            }
-            menu.style.display = menuDisplay;
-    });
+    let iframe = document.getElementsByTagName('iframe');
+    if(iframe.length > 0) iframe[0].contentDocument.body.addEventListener('click', othersClick);
 });
