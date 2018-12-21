@@ -192,12 +192,12 @@
             </div>
             <% if (slide) { %>
             <div id="preview" >
-                <iframe src="https://revealweb.mosin.jp/users/<%=username%>/slide"></iframe>
+                <iframe src="<%=host%>users/<%=username%>/slide"></iframe>
             </div>
             <% } %>
         </div>
 
-        <p> スライドを共有することで<a href="https://revealweb.mosin.jp/users/<%= username %>/slide"> https://revealweb.mosin.jp/users/<%= username %>/slide</a>で誰でもアクセスできるようになります。</p>
+        <p> スライドを共有することで<a href="<%=host%>users/<%=username%>/slide"><%=host%>users/<%=username%>/slide</a>で誰でもアクセスできるようになります。</p>
         <p> スライドを共有しない場合はあなたしかアクセスできません。</p>
         <p> バグ報告などはryoctrl@gmail.comまでお願いします</p>
         </div>

@@ -10,6 +10,10 @@ const models = require('../models');
 const CUSTOM_CSS = 'CustomCSS';
 const ALLOW_DESIGNS = ['beige', 'black', 'blood', 'league', 'moon', 'night', 'serif', 'simple', 'sky', 'solarized', 'white', CUSTOM_CSS];
 const ALLOW_MOTIONS = ["default", "cube", "page", "concave", "zoom", "linear", "fade", "none"];
+let url = process.env.USE_SSL ? 'https://' : 'http://';
+url += process.env.HOST_NAME;
+url += url.endsWith('/') ? '' : '/';
+
 
 //userSession: ログイン済みの場合ユーザー情報がある。
 //これがnullである場合、アクセスユーザーは未ログイン状態。
@@ -76,7 +80,8 @@ router.get('/:name', async (req, res, next) => {
         selectingDesign: "null",
         selectingMotion: "null",
         designs: ALLOW_DESIGNS,
-        motions: ALLOW_MOTIONS
+        motions: ALLOW_MOTIONS,
+        host: url
     };
 
     const query = {

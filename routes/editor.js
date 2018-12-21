@@ -2,6 +2,10 @@ var express = require('express');
 var router = express.Router();
 const models = require('../models');
 const fs = require('fs');
+let url = process.env.USE_SSL ? 'https://' : 'http://';
+url += process.env.HOST_NAME;
+url += url.endsWith('/') ? '' : '/';
+
 
 /* GET home page. */
 router.get('/', async function(req, res, next) {
@@ -47,7 +51,8 @@ router.get('/', async function(req, res, next) {
         data: markdownString,
         resources: JSON.stringify(resources),
         isCSS: false,
-        name: user.name
+        name: user.name,
+        host: url
     };
     res.render('editor', obj);
 });

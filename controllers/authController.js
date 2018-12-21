@@ -72,10 +72,15 @@ module.exports = {
         }
         let consumerKey = this.authSettings.twitter.TWITTER_CONSUMER_KEY;
         let consumerSecret = this.authSettings.twitter.TWITTER_CONSUMER_SECRET;
+        let callbackURL = process.env.USE_SSL ? 'https' : 'http';
+        callbackURL += '://';
+        callbackURL += process.env.HOST_NAME;
+        callbackURL += callbackURL.endsWith('/') ? '' : '/';
+        callbackURL += 'auth/twitter/callback';
         passport.use(new TwitterStrategy({
             consumerKey: consumerKey,
             consumerSecret: consumerSecret,
-            callbackURL: 'https://revealweb.mosin.jp/auth/twitter/callback'
+            callbackURL: callbackURL
         }, uc.twitterAuth));
 
         this.app.get('/auth/twitter', passport.authenticate('twitter'));
