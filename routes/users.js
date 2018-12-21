@@ -362,7 +362,7 @@ router.get('/:name/download/pdf', async function(req, res, next) {
 
     let mdpath = slide.getDataValue('markdown_path');
     try {
-        fs.statSync(mdPath);
+        fs.statSync(mdpath);
     } catch(e) {
         res.status(404);
         res.end(e.toString());
