@@ -8,6 +8,9 @@ let confirmMailOptions = {
     from: process.env.MAIL_FROM,
     subject: 'RevealWeb アカウントアクティベート',
 };
+let url = process.env.USE_SSL ? 'https://' : 'http://';
+url += process.env.HOST_NAME;
+url += url.endsWith('/') ? '' : '/';
 
 module.exports = {
     send: (options, cb) => {
@@ -21,7 +24,7 @@ module.exports = {
 
         let to = record.email;
         let hash = record.activate_hash;
-        let activateURL = encodeURI(`https://revealweb.mosin.jp/activate/${hash}`);
+        let activateURL = encodeURI(`${url}activate/${hash}`);
 
         confirmMailOptions.to = to;
         confirmMailOptions.html = `
