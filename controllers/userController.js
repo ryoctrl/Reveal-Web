@@ -1,5 +1,6 @@
 const models = require('../models');
 const ac = require('./authController');
+const cc = require('./confirmController');
 const bcrypt = require('bcrypt');
 const moment = require('moment');
 
@@ -82,6 +83,15 @@ module.exports = {
         };
         return await models.users.findOne(query);
     },
+    findOneByEmail: async function(email) {
+        let query = {
+            where: {
+                email: email
+            }
+        };
+        return await models.users.findOne(query);
+
+    },
     activateUser: async function(hash) {
         let query = {
             where: {
@@ -129,4 +139,73 @@ module.exports = {
             err: false
         };
     },
-}
+    registerUser: async function(name, email, password, passwordConf) {
+        let result = {
+            error: false,
+            msg: ''
+        };
+
+        if(password != passwordConf) {
+            result.error = true;
+            result.msg = '入力されたパスワードと確認用パスワードが異なります';
+            return result;
+        }
+
+        if(email.indexOf('@') === -1) {
+            result.error = true;
+            result.msg = '正しいメールアドレスを入力してください';
+            return result;
+        }
+
+        let record = await this.findOneByEmail(email);
+
+        if(record) {
+            result.error = true;
+            result.msg = '既に登録されているメールアドレスです';
+            return result;
+        }
+
+        record = await this.findOneById(name);
+
+        if(record) {
+            result.error = true;
+            result.msg = '既に登録されているユーザー名です';
+            return result;
+        }
+
+        const hash = bcrypt.hashSync(password, 10);
+        
+        const userObj = {
+            name: name,
+            email: email,
+            password_hash: hash,
+            provider: 'original',
+            activate_hash: cc.generateConfirmSeed(name, new Date()),
+            activated: false
+        };
+
+        record = await models.users.create(userObj).catch(() => null);
+
+        if(!record) {
+            result.error = true;
+            result.msg = '何らかのエラーが発生しました.もう一度登録してください';
+            return result;
+        }
+
+        let sendResult = cc.sendConfirm(record).catch((err) => {
+            console.log(err);
+            return null;
+        });
+
+        if(!sendResult) {
+            result.error = true;
+            result.msg = '確認メールの送信に失敗しました.管理者に問い合わせてください';
+            return result;
+        }
+
+        result.error = false;
+        result.msg = '確認メールを送信しました';
+        return result;
+    },
+};
+
