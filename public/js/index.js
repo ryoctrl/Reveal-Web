@@ -7,12 +7,22 @@ window.addEventListener('load', function() {
 });
 
 function openLoginFields() {
+    let uidField = document.getElementById('account-menu-btn');
+    if(uidField){
+        location.href = '/users/' + uidField.innerText;
+        return;
+    }
     alertify.genericDialog(form.getElementById('loginForm'))
         .set('selector', 'input[name="username"]')
         .set('title', 'Login');
 }
 
 function openSignupFields() {
+    let uidField = document.getElementById('account-menu-btn');
+    if(uidField){
+        location.href = '/users/' + uidField.innerText;
+        return;
+    }
     alertify.genericDialog(form.getElementById('signupForm'))
         .set('selector', 'input[name="username"]')
         .setHeader('Signup');
