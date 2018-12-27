@@ -11,6 +11,11 @@ router.get('/*', async(req, res, next) => {
     }
 
     let f = req.originalUrl.substr(1);
+    if(f.endsWith('/') || f.endsWith('uploads')){
+        res.status(404);
+        res.end();
+        return;
+    }
     try {
         fs.statSync(f);
     } catch(e) {
