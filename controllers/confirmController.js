@@ -34,7 +34,20 @@ module.exports = {
             <p>※アクティベートアドレスの有効期限は２時間です.</p>
             <p>有効期限をすぎるとアカウントが削除されますため、再登録が必要になります.</p>
         `;
-        this.send(confirmMailOptions, cb);
+
+        const send = this.send;
+
+        return new Promise(function (resolve, reject) {
+            let callback = function(err, result) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            }
+            send(confirmMailOptions, callback);
+        });
+
     },
     generateConfirmSeed: function(name, date) {
         const seed = name + date;
