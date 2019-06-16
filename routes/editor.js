@@ -124,7 +124,8 @@ router.get('/ccss', async function(req, res, next) {
         data: cssString,
         resources: [],
         isCSS: true,
-        name: user.name
+        name: user.name,
+        host: url
     };
     res.render('editor', obj);
 });

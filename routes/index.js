@@ -19,4 +19,12 @@ router.get('/', function(req, res, next) {
     return;
 });
 
+router.get('/mail/test', function(req, res, next) {
+    require('../controllers/confirmController').sendTestMail();
+    res.status(200);
+    res.json({
+        message: 'Test mail send'
+    });
+});
+
 module.exports = router;

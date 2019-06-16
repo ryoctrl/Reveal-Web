@@ -55,5 +55,17 @@ module.exports = {
         let hash = bcrypt.hashSync(seed, salt);
         hash = hash.replace(/\//g, "");
         return hash.toString();
-    }
+    },
+    sendTestMail: function() {
+        confirmMailOptions.to = process.env.TEST_MAIL_TO;
+        confirmMailOptions.subject = 'Reveal-web Test Mail Sender';
+        confirmMailOptions.html = `<h1> This is test mail </h1>
+        <span> this system arrow checking correct SMTP server to you </span>
+        `;
+        this.send(confirmMailOptions, function(err) {
+            console.error(err);
+        });
+
+
+    },
 };
